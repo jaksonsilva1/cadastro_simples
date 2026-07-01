@@ -151,6 +151,10 @@ app.get('/consulta', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'consulta.html'));
 });
 
+// ============================================================
+// ROTAS - VEÍCULOS
+// ============================================================
+
 // API: Consultar veículo por placa
 app.get('/api/consulta/:placa', (req, res) => {
     const placa = req.params.placa.toUpperCase().trim();
@@ -201,7 +205,10 @@ app.get('/api/consulta/:placa', (req, res) => {
 // API: Listar todos os veículos
 app.get('/api/veiculos', (req, res) => {
     db.all('SELECT * FROM veiculos ORDER BY data_cadastro DESC', (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
+        if (err) {
+            console.error('Erro ao listar veículos:', err);
+            return res.status(500).json({ error: err.message });
+        }
         res.json(rows);
     });
 });
@@ -217,6 +224,7 @@ app.post('/cadastrar-veiculo', (req, res) => {
         (err) => {
             if (err) {
                 if (err.message.includes('UNIQUE')) return res.redirect('/?msg=duplicado');
+                console.error('Erro ao cadastrar veículo:', err);
                 return res.redirect('/?msg=erro');
             }
             res.redirect('/?msg=ok');
@@ -228,11 +236,20 @@ app.post('/cadastrar-veiculo', (req, res) => {
 app.delete('/api/excluir-veiculo/:id', (req, res) => {
     const id = req.params.id;
     db.run('DELETE FROM veiculos WHERE id = ?', [id], function(err) {
-        if (err) return res.status(500).json({ success: false, message: err.message });
-        if (this.changes === 0) return res.status(404).json({ success: false, message: 'Veículo não encontrado' });
+        if (err) {
+            console.error('Erro ao excluir veículo:', err);
+            return res.status(500).json({ success: false, message: err.message });
+        }
+        if (this.changes === 0) {
+            return res.status(404).json({ success: false, message: 'Veículo não encontrado' });
+        }
         res.json({ success: true, message: 'Veículo excluído com sucesso!' });
     });
 });
+
+// ============================================================
+// ROTAS - PAGAMENTOS
+// ============================================================
 
 // API: Listar todos os pagamentos
 app.get('/api/pagamentos', (req, res) => {
@@ -242,7 +259,10 @@ app.get('/api/pagamentos', (req, res) => {
         JOIN veiculos v ON p.veiculo_id = v.id
         ORDER BY p.data_pagamento DESC
     `, (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
+        if (err) {
+            console.error('Erro ao listar pagamentos:', err);
+            return res.status(500).json({ error: err.message });
+        }
         res.json(rows);
     });
 });
@@ -262,7 +282,10 @@ app.post('/cadastrar-pagamento', (req, res) => {
         VALUES (?, ?, ?, ?, ?, ?)
     `, [veiculo_id, descricao, valorNum, data_pagamento, forma_pagamento, observacao],
     (err) => {
-        if (err) return res.redirect('/?msg=erro');
+        if (err) {
+            console.error('Erro ao cadastrar pagamento:', err);
+            return res.redirect('/?msg=erro');
+        }
         res.redirect('/?msg=ok');
     });
 });
@@ -271,50 +294,59 @@ app.post('/cadastrar-pagamento', (req, res) => {
 app.delete('/api/excluir-pagamento/:id', (req, res) => {
     const id = req.params.id;
     db.run('DELETE FROM pagamentos WHERE id = ?', [id], function(err) {
-        if (err) return res.status(500).json({ success: false, message: err.message });
-        if (this.changes === 0) return res.status(404).json({ success: false, message: 'Pagamento não encontrado' });
+        if (err) {
+            console.error('Erro ao excluir pagamento:', err);
+            return res.status(500).json({ success: false, message: err.message });
+        }
+        if (this.changes === 0) {
+            return res.status(404).json({ success: false, message: 'Pagamento não encontrado' });
+        }
         res.json({ success: true, message: 'Pagamento excluído com sucesso!' });
     });
 });
 
-// Rota: Cadastrar manutenção (via admin)
-app.post('/cadastrar-manutencao', (req, res) => {
-    const { veiculo_id, descricao, pecas, mao_obra, total, data_manutencao } = req.body;
-    if (!veiculo_id || !descricao || !data_manutencao) {
-        return res.redirect('/?msg=erro');
-    }
-    
-    const maoObraNum = parseFloat(mao_obra) || 0;
-    const totalNum = parseFloat(total) || 0;
-    
-    db.run(`
-        INSERT INTO manutencoes (veiculo_id, descricao, pecas, mao_obra, total, data_manutencao)
-        VALUES (?, ?, ?, ?, ?, ?)
-    `, [veiculo_id, descricao, pecas, maoObraNum, totalNum, data_manutencao],
-    (err) => {
-        if (err) return res.redirect('/?msg=erro');
-        res.redirect('/?msg=ok');
+// ============================================================
+// ROTAS - MANUTENÇÕES
+// ============================================================
+
+// API: Listar todas as manutenções
+app.get('/api/manutencoes', (req, res) => {
+    db.all(`
+        SELECT m.*, v.placa, v.modelo, v.marca 
+        FROM manutencoes m
+        JOIN veiculos v ON m.veiculo_id = v.id
+        ORDER BY m.data_manutencao DESC
+    `, (err, rows) => {
+        if (err) {
+            console.error('Erro ao listar manutenções:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(rows);
     });
 });
-
-// Adicione esta rota no server.js (já deve ter, mas vou garantir)
 
 // Rota: Cadastrar manutenção
 app.post('/cadastrar-manutencao', (req, res) => {
     const { veiculo_id, descricao, pecas, mao_obra, total, data_manutencao } = req.body;
     
     // Validação
-    if (!veiculo_id || !descricao || !data_manutencao) {
+    if (!veiculo_id || !descricao || !data_manutencao || !total) {
+        console.error('Campos obrigatórios faltando:', { veiculo_id, descricao, data_manutencao, total });
         return res.redirect('/?msg=erro');
     }
     
     const maoObraNum = parseFloat(mao_obra) || 0;
-    const totalNum = parseFloat(total) || 0;
+    const totalNum = parseFloat(total);
+    
+    if (isNaN(totalNum) || totalNum <= 0) {
+        console.error('Total inválido:', total);
+        return res.redirect('/?msg=erro');
+    }
     
     db.run(`
         INSERT INTO manutencoes (veiculo_id, descricao, pecas, mao_obra, total, data_manutencao)
         VALUES (?, ?, ?, ?, ?, ?)
-    `, [veiculo_id, descricao, pecas, maoObraNum, totalNum, data_manutencao],
+    `, [veiculo_id, descricao, pecas || '', maoObraNum, totalNum, data_manutencao],
     (err) => {
         if (err) {
             console.error('Erro ao cadastrar manutenção:', err);
@@ -324,9 +356,86 @@ app.post('/cadastrar-manutencao', (req, res) => {
     });
 });
 
-// Iniciar servidor
+// API: Excluir manutenção
+app.delete('/api/excluir-manutencao/:id', (req, res) => {
+    const id = req.params.id;
+    db.run('DELETE FROM manutencoes WHERE id = ?', [id], function(err) {
+        if (err) {
+            console.error('Erro ao excluir manutenção:', err);
+            return res.status(500).json({ success: false, message: err.message });
+        }
+        if (this.changes === 0) {
+            return res.status(404).json({ success: false, message: 'Manutenção não encontrada' });
+        }
+        res.json({ success: true, message: 'Manutenção excluída com sucesso!' });
+    });
+});
+
+// ============================================================
+// INICIAR SERVIDOR
+// ============================================================
+
+
+// ============================================================
+// ROTAS - MANUTENÇÕES (EDIÇÃO)
+// ============================================================
+
+// API: Buscar uma manutenção específica
+app.get('/api/manutencao/:id', (req, res) => {
+    const id = req.params.id;
+    db.get('SELECT * FROM manutencoes WHERE id = ?', [id], (err, row) => {
+        if (err) {
+            console.error('Erro ao buscar manutenção:', err);
+            return res.status(500).json({ error: 'Erro ao buscar manutenção' });
+        }
+        if (!row) {
+            return res.status(404).json({ error: 'Manutenção não encontrada' });
+        }
+        res.json(row);
+    });
+});
+
+// API: Editar manutenção
+app.put('/api/editar-manutencao/:id', (req, res) => {
+    const id = req.params.id;
+    const { veiculo_id, descricao, pecas, mao_obra, total, data_manutencao } = req.body;
+    
+    // Validação
+    if (!veiculo_id || !descricao || !data_manutencao || !total) {
+        return res.status(400).json({ success: false, message: 'Campos obrigatórios faltando' });
+    }
+    
+    const maoObraNum = parseFloat(mao_obra) || 0;
+    const totalNum = parseFloat(total);
+    
+    if (isNaN(totalNum) || totalNum <= 0) {
+        return res.status(400).json({ success: false, message: 'Total inválido' });
+    }
+    
+    db.run(`
+        UPDATE manutencoes 
+        SET veiculo_id = ?, 
+            descricao = ?, 
+            pecas = ?, 
+            mao_obra = ?, 
+            total = ?, 
+            data_manutencao = ?
+        WHERE id = ?
+    `, [veiculo_id, descricao, pecas || '', maoObraNum, totalNum, data_manutencao, id],
+    function(err) {
+        if (err) {
+            console.error('Erro ao editar manutenção:', err);
+            return res.status(500).json({ success: false, message: 'Erro ao editar manutenção' });
+        }
+        if (this.changes === 0) {
+            return res.status(404).json({ success: false, message: 'Manutenção não encontrada' });
+        }
+        res.json({ success: true, message: 'Manutenção atualizada com sucesso!' });
+    });
+});
 app.listen(PORT, () => {
     console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
     console.log(`🔍 Página de consulta: http://localhost:${PORT}/consulta`);
     console.log(`🛠️  Painel administrativo: http://localhost:${PORT}`);
+    console.log(`📊 Banco de dados: ${path.join(__dirname, 'instance', 'cadastro.db')}`);
 });
