@@ -53,6 +53,7 @@
             margin-bottom: 30px;
             border-bottom: 2px solid #e2e8f0;
             padding-bottom: 10px;
+            flex-wrap: wrap;
         }
         .tab-btn {
             padding: 10px 25px;
@@ -86,7 +87,7 @@
             color: #4a5568;
             font-size: 14px;
         }
-        .form-group input, .form-group select {
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 10px 15px;
             border: 2px solid #e2e8f0;
@@ -94,9 +95,13 @@
             font-size: 14px;
             transition: border-color 0.3s;
         }
-        .form-group input:focus, .form-group select:focus {
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
             border-color: #667eea;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
         }
         .btn {
             padding: 12px 30px;
@@ -146,7 +151,7 @@
         
         .lista-header {
             display: grid;
-            grid-template-columns: 2fr 2fr 1.5fr 1fr 1fr 0.8fr;
+            grid-template-columns: 2fr 2fr 1.5fr 1.2fr 1.2fr 0.8fr;
             gap: 10px;
             padding: 10px 15px;
             background: #f7fafc;
@@ -158,7 +163,7 @@
         }
         .item {
             display: grid;
-            grid-template-columns: 2fr 2fr 1.5fr 1fr 1fr 0.8fr;
+            grid-template-columns: 2fr 2fr 1.5fr 1.2fr 1.2fr 0.8fr;
             gap: 10px;
             align-items: center;
             padding: 10px 15px;
@@ -193,10 +198,38 @@
         }
         .soma-total span { color: #48bb78; font-size: 24px; }
         
+        /* Estilo para a tabela de manutenções */
+        .manutencao-header {
+            display: grid;
+            grid-template-columns: 1.5fr 2.5fr 2fr 1.2fr 1.2fr 0.8fr;
+            gap: 10px;
+            padding: 10px 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+        .manutencao-item {
+            display: grid;
+            grid-template-columns: 1.5fr 2.5fr 2fr 1.2fr 1.2fr 0.8fr;
+            gap: 10px;
+            align-items: center;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: background 0.2s;
+        }
+        .manutencao-item:hover { background: #edf2f7; }
+        
         @media (max-width: 768px) {
             .form-group { grid-template-columns: 1fr; }
             .lista-header { display: none; }
             .item { grid-template-columns: 1fr; gap: 5px; padding: 15px; }
+            .manutencao-header { display: none; }
+            .manutencao-item { grid-template-columns: 1fr; gap: 5px; padding: 15px; }
             .tabs { flex-direction: column; }
             .admin-actions { flex-direction: column; align-items: center; }
         }
@@ -205,7 +238,7 @@
 <body>
     <div class="container">
         <h1>🚗💰 Controle de Veículos</h1>
-        <p class="subtitle">Gerencie seus veículos e registre os pagamentos</p>
+        <p class="subtitle">Gerencie seus veículos, pagamentos e manutenções</p>
         
         <div class="admin-actions">
             <a href="/consulta" class="btn-consulta">🔍 Consulta Pública de Veículos</a>
@@ -217,6 +250,7 @@
         <div class="tabs">
             <button class="tab-btn active" onclick="abrirTab('veiculos')">🚗 Veículos</button>
             <button class="tab-btn" onclick="abrirTab('pagamentos')">💰 Pagamentos</button>
+            <button class="tab-btn" onclick="abrirTab('manutencoes')">🔧 Manutenções</button>
         </div>
         
         <!-- ===== TAB VEÍCULOS ===== -->
@@ -287,7 +321,11 @@
                 <div class="form-group">
                     <div>
                         <label>Forma de Pagamento</label>
-                        <input type="text" name="forma_pagamento" placeholder="Ex: Cartão, Dinheiro, Pix...">
+                        <select name="forma_pagamento">
+                            <option value="Pendente">Pendente</option>
+                            <option value="Pago">Pago</option>
+                            <option value="Atrasado">Atrasado</option>
+                        </select>
                     </div>
                     <div>
                         <label>Observação</label>
@@ -302,6 +340,53 @@
             <h2>📋 Histórico de Pagamentos</h2>
             <div id="listaPagamentos"></div>
         </div>
+        
+        <!-- ===== TAB MANUTENÇÕES ===== -->
+        <div id="tab-manutencoes" class="tab-content">
+            <h2>🔧 Registrar Manutenção</h2>
+            <form action="/cadastrar-manutencao" method="POST">
+                <div class="form-group">
+                    <div>
+                        <label>Veículo *</label>
+                        <select name="veiculo_id" id="selectVeiculoManutencao" required>
+                            <option value="">Selecione um veículo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Data da Manutenção *</label>
+                        <input type="date" name="data_manutencao" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-group-full">
+                        <label>Descrição do Serviço *</label>
+                        <input type="text" name="descricao" placeholder="Ex: Troca de óleo, Revisão..." required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label>Peças Trocadas</label>
+                        <input type="text" name="pecas" placeholder="Ex: Óleo 5W30, Filtro de óleo">
+                    </div>
+                    <div>
+                        <label>Mão de Obra (R$)</label>
+                        <input type="number" name="mao_obra" placeholder="0,00" step="0.01">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-group-full">
+                        <label>Total (R$) *</label>
+                        <input type="number" name="total" placeholder="0,00" step="0.01" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-warning btn-block">Registrar Manutenção</button>
+            </form>
+            
+            <hr style="margin: 30px 0; border: none; border-top: 2px solid #e2e8f0;">
+            
+            <h2>📋 Histórico de Manutenções</h2>
+            <div id="listaManutencoes"></div>
+        </div>
     </div>
     
     <script>
@@ -309,9 +394,27 @@
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             document.getElementById('tab-' + tab).classList.add('active');
-            event.target.classList.add('active');
+            
+            // Encontra o botão clicado
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(btn => {
+                if (btn.textContent.includes(getTabLabel(tab))) {
+                    btn.classList.add('active');
+                }
+            });
+            
             if (tab === 'pagamentos') carregarPagamentos();
+            else if (tab === 'manutencoes') carregarManutencoes();
             else carregarVeiculos();
+        }
+        
+        function getTabLabel(tab) {
+            const labels = {
+                'veiculos': '🚗',
+                'pagamentos': '💰',
+                'manutencoes': '🔧'
+            };
+            return labels[tab] || '';
         }
         
         function mostrarMensagem(texto, tipo) {
@@ -345,13 +448,19 @@
                         lista.innerHTML = html;
                     }
                     
-                    const select = document.getElementById('selectVeiculo');
-                    const valorAtual = select.value;
-                    select.innerHTML = '<option value="">Selecione um veículo</option>';
-                    data.forEach(v => {
-                        select.innerHTML += '<option value="' + v.id + '">' + v.placa + ' - ' + v.modelo + ' (' + v.marca + ')</option>';
+                    // Atualiza selects
+                    const selects = ['selectVeiculo', 'selectVeiculoManutencao'];
+                    selects.forEach(id => {
+                        const select = document.getElementById(id);
+                        if (select) {
+                            const valorAtual = select.value;
+                            select.innerHTML = '<option value="">Selecione um veículo</option>';
+                            data.forEach(v => {
+                                select.innerHTML += '<option value="' + v.id + '">' + v.placa + ' - ' + v.modelo + ' (' + v.marca + ')</option>';
+                            });
+                            if (valorAtual) select.value = valorAtual;
+                        }
                     });
-                    if (valorAtual) select.value = valorAtual;
                 })
                 .catch(() => mostrarMensagem('Erro ao carregar veículos', 'erro'));
         }
@@ -387,6 +496,37 @@
                 .catch(() => mostrarMensagem('Erro ao carregar pagamentos', 'erro'));
         }
         
+        function carregarManutencoes() {
+            fetch('/api/manutencoes')
+                .then(r => r.json())
+                .then(data => {
+                    const lista = document.getElementById('listaManutencoes');
+                    if (data.length === 0) {
+                        lista.innerHTML = '<div class="vazio">Nenhuma manutenção registrada</div>';
+                        return;
+                    }
+                    
+                    let html = '<div class="manutencao-header"><span>Veículo</span><span>Serviço</span><span>Peças</span><span>Mão de Obra</span><span>Total</span><span>Ações</span></div>';
+                    let totalGeral = 0;
+                    data.forEach(m => {
+                        totalGeral += m.total;
+                        html += '<div class="manutencao-item">';
+                        html += '  <span class="placa">' + m.placa + '</span>';
+                        html += '  <span>' + m.descricao + '</span>';
+                        html += '  <span>' + (m.pecas || '-') + '</span>';
+                        html += '  <span>R$ ' + (m.mao_obra || 0).toFixed(2).replace('.', ',') + '</span>';
+                        html += '  <span class="valor">R$ ' + m.total.toFixed(2).replace('.', ',') + '</span>';
+                        html += '  <div class="acoes">';
+                        html += '    <button class="btn btn-danger btn-sm" onclick="excluirManutencao(' + m.id + ')">🗑️</button>';
+                        html += '  </div>';
+                        html += '</div>';
+                    });
+                    html += '<div class="soma-total">🔧 Total em Manutenções: <span>R$ ' + totalGeral.toFixed(2).replace('.', ',') + '</span></div>';
+                    lista.innerHTML = html;
+                })
+                .catch(() => mostrarMensagem('Erro ao carregar manutenções', 'erro'));
+        }
+        
         function formatarData(data) {
             if (!data) return '';
             const d = new Date(data + 'T00:00:00');
@@ -394,12 +534,14 @@
         }
         
         function excluirVeiculo(id) {
-            if (!confirm('Tem certeza? Os pagamentos deste veículo também serão excluídos.')) return;
+            if (!confirm('Tem certeza? Os pagamentos e manutenções deste veículo também serão excluídos.')) return;
             fetch('/api/excluir-veiculo/' + id, { method: 'DELETE' })
                 .then(r => r.json())
                 .then(data => {
                     mostrarMensagem(data.message, data.success ? 'sucesso' : 'erro');
                     carregarVeiculos();
+                    carregarPagamentos();
+                    carregarManutencoes();
                 });
         }
         
@@ -413,9 +555,20 @@
                 });
         }
         
+        function excluirManutencao(id) {
+            if (!confirm('Tem certeza que deseja excluir esta manutenção?')) return;
+            fetch('/api/excluir-manutencao/' + id, { method: 'DELETE' })
+                .then(r => r.json())
+                .then(data => {
+                    mostrarMensagem(data.message, data.success ? 'sucesso' : 'erro');
+                    carregarManutencoes();
+                });
+        }
+        
         window.onload = function() {
             carregarVeiculos();
             carregarPagamentos();
+            carregarManutencoes();
             
             const urlParams = new URLSearchParams(window.location.search);
             const msg = urlParams.get('msg');

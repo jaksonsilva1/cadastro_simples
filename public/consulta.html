@@ -1,823 +1,127 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    <link rel="stylesheet" href="style.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <meta name="theme-color" content="#0070f3">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>SuaveConsulta | Débitos Veiculares</title>
+    <!-- Fontes do Google -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #0a0e17;
-            min-height: 100vh;
-            position: relative;
-            touch-action: pan-y pinch-zoom;
-            overflow-x: hidden;
-            color: #b8c5d6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-        }
-
-        .blob {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(100px);
-            opacity: 0.06;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .blob-1 {
-            top: -100px;
-            right: -100px;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, #4a8fe0 0%, transparent 70%);
-        }
-
-        .blob-2 {
-            bottom: -100px;
-            left: -100px;
-            width: 350px;
-            height: 350px;
-            background: radial-gradient(circle, #3a7bc8 0%, transparent 70%);
-        }
-
-        .blob-3 {
-            top: 50%;
-            left: 50%;
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, #2a6bb8 0%, transparent 70%);
-            transform: translate(-50%, -50%);
-        }
-
-        .main-container {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            max-width: 900px;
-        }
-
-        .login-card {
-            max-width: 440px;
-            margin: 0 auto;
-            padding: 32px 24px;
-            text-align: center;
-            background: rgba(14, 19, 30, 0.92);
-            backdrop-filter: blur(10px);
-            border-radius: 28px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-            border: 1px solid #1a2340;
-            transition: all 0.3s ease;
-        }
-
-        .login-card:hover {
-            border-color: #2a3a55;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
-        }
-
-        .logo {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #4a8fe0, #2a6bb8);
-            border-radius: 28px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 20px rgba(74, 143, 224, 0.15);
-            overflow: hidden;
-            font-size: 36px;
-        }
-
-        h1 {
-            font-size: 28px;
-            font-weight: 800;
-            color: #dce4f0;
-            margin-bottom: 6px;
-            letter-spacing: -0.5px;
-        }
-
-        h1 span {
-            color: #5a9cf0;
-        }
-
-        .tagline {
-            color: #7a8a9f;
-            font-size: 13px;
-            margin-bottom: 28px;
-        }
-
-        .alert {
-            padding: 14px 16px;
-            border-radius: 20px;
-            margin-bottom: 20px;
-            display: none;
-            font-size: 13px;
-            animation: slideDown 0.3s ease;
-        }
-
-        .alert-error {
-            background: #2a1010;
-            color: #e88a8a;
-            border-left: 4px solid #b84a4a;
-        }
-
-        .alert-success {
-            background: #0e2a1a;
-            color: #6ac8a0;
-            border-left: 4px solid #3a9a7a;
-        }
-
-        .alert-info {
-            background: #0e1a3a;
-            color: #7ab0f0;
-            border-left: 4px solid #4a7ac8;
-        }
-
-        .alert.show {
-            display: block;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #7a8a9f;
-            font-weight: 500;
-            font-size: 13px;
-        }
-
-        .input-wrapper {
-            position: relative;
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 18px;
-            color: #3d4d68;
-        }
-
-        .input-wrapper input {
-            width: 100%;
-            padding: 16px 16px 16px 48px;
-            border: 2px solid #1a2340;
-            border-radius: 24px;
-            font-size: 18px;
-            transition: all 0.3s;
-            background: #111827;
-            font-family: monospace;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            -webkit-appearance: none;
-            appearance: none;
-            color: #dce4f0;
-        }
-
-        .input-wrapper input:focus {
-            outline: none;
-            border-color: #4a8fe0;
-            box-shadow: 0 0 0 4px rgba(74, 143, 224, 0.1);
-        }
-
-        .input-wrapper input::placeholder {
-            color: #3d4d68;
-            text-transform: none;
-            letter-spacing: 0.5px;
-            font-size: 14px;
-        }
-
-        .btn-primary {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #4a8fe0, #2a6bb8);
-            border: none;
-            border-radius: 28px;
-            color: #f0f4fa;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-            box-shadow: 0 4px 16px rgba(74, 143, 224, 0.15);
-            font-family: inherit;
-        }
-
-        .btn-primary:active {
-            transform: scale(0.97);
-            transition: transform 0.05s;
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .examples-box {
-            margin-top: 28px;
-            padding: 16px;
-            background: #111827;
-            border-radius: 24px;
-            border: 1px solid #1a2340;
-        }
-
-        .examples-title {
-            color: #5a6a85;
-            font-size: 12px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            justify-content: center;
-        }
-
-        .chips {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .chip {
-            padding: 10px 18px;
-            background: #0a0e17;
-            border: 1px solid #1a2340;
-            border-radius: 40px;
-            font-size: 14px;
-            font-family: monospace;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: #5a6a85;
-            font-weight: 500;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .chip:active {
-            transform: scale(0.95);
-            background: #4a8fe0;
-            color: #f0f4fa;
-            border-color: #4a8fe0;
-        }
-
-        .chip:hover {
-            background: #111827;
-            border-color: #2a3a55;
-        }
-
-        .dashboard {
-            display: none;
-            animation: fadeIn 0.4s ease;
-            background: rgba(14, 19, 30, 0.92);
-            backdrop-filter: blur(10px);
-            border-radius: 28px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-            border: 1px solid #1a2340;
-            overflow: hidden;
-        }
-
-        .dashboard.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .dashboard-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid #1a2340;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .dashboard-header-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-back {
-            padding: 10px 20px;
-            background: #111827;
-            border: 1px solid #1a2340;
-            border-radius: 40px;
-            color: #5a6a85;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 500;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-            font-family: inherit;
-        }
-
-        .btn-back:active {
-            transform: scale(0.97);
-            background: #1a2340;
-        }
-
-        .btn-back:hover {
-            background: #1a2340;
-            border-color: #2a3a55;
-        }
-
-        .vehicle-info-right {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 4px;
-        }
-
-        .vehicle-model-right {
-            color: #7a8a9f;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .plate-small {
-            background: linear-gradient(135deg, #111827, #1a2340);
-            padding: 6px 14px;
-            border-radius: 24px;
-            font-family: 'Courier New', monospace;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            color: #dce4f0;
-            display: inline-block;
-            border: 1px solid #2a3a55;
-        }
-
-        .dashboard-alert {
-            margin: 0 16px;
-        }
-
-        .page {
-            display: none;
-            animation: fadeIn 0.3s ease;
-            padding: 20px;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        .page-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #dce4f0;
-            margin-bottom: 4px;
-        }
-
-        .page-subtitle {
-            color: #5a6a85;
-            font-size: 13px;
-            margin-bottom: 20px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-        }
-
-        .stat-item {
-            background: #111827;
-            padding: 16px;
-            border-radius: 24px;
-            transition: all 0.2s;
-            border: 1px solid #1a2340;
-            text-align: center;
-        }
-
-        .stat-item:active {
-            transform: scale(0.98);
-        }
-
-        .stat-icon {
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #dce4f0;
-            margin-bottom: 4px;
-        }
-
-        .stat-label {
-            font-size: 11px;
-            color: #5a6a85;
-        }
-
-        .stat-value.debt {
-            color: #e88a8a;
-        }
-
-        .stat-value.success {
-            color: #6ac8a0;
-        }
-
-        .table-container {
-            overflow-x: auto;
-            background: #111827;
-            border-radius: 20px;
-            border: 1px solid #1a2340;
-            width: 100%;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-
-        thead th {
-            text-align: left;
-            padding: 12px 10px;
-            color: #5a6a85;
-            font-weight: 500;
-            font-size: 11px;
-            background: #0a0e17;
-            border-bottom: 1px solid #1a2340;
-        }
-
-        tbody td {
-            padding: 10px 10px;
-            color: #b8c5d6;
-            border-bottom: 1px solid #111827;
-            font-size: 13px;
-            word-wrap: break-word;
-        }
-
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        tbody tr:hover td {
-            background: #0a0e17;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 3px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 500;
-            white-space: nowrap;
-        }
-
-        .badge-paid {
-            background: #0e2a1a;
-            color: #6ac8a0;
-        }
-
-        .badge-pending {
-            background: #2a1a0a;
-            color: #d4a84a;
-        }
-
-        .badge-overdue {
-            background: #2a1010;
-            color: #e88a8a;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #5a6a85;
-        }
-
-        .empty-state .empty-icon {
-            font-size: 40px;
-            display: block;
-            margin-bottom: 12px;
-        }
-
-        .empty-state .empty-title {
-            color: #7a8a9f;
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .empty-state .empty-desc {
-            font-size: 13px;
-            margin-top: 4px;
-        }
-
-        .total-summary {
-            background: #0a0e17;
-            padding: 16px 20px;
-            border-radius: 16px;
-            margin-top: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            border: 1px solid #1a2340;
-        }
-
-        .total-summary .label {
-            color: #5a6a85;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .total-summary .value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #6ac8a0;
-        }
-
-        .total-summary .value.debt {
-            color: #e88a8a;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 8px;
-            }
-
-            .login-card {
-                padding: 24px 16px;
-                border-radius: 20px;
-            }
-
-            h1 {
-                font-size: 24px;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }
-
-            .stat-item {
-                padding: 12px;
-                border-radius: 16px;
-            }
-
-            .stat-value {
-                font-size: 20px;
-            }
-
-            .dashboard-header {
-                padding: 12px 14px;
-                flex-direction: column;
-                align-items: stretch;
-                gap: 8px;
-            }
-
-            .dashboard-header-left {
-                justify-content: center;
-            }
-
-            .vehicle-info-right {
-                align-items: center;
-            }
-
-            .page {
-                padding: 12px 8px;
-            }
-
-            .page-title {
-                font-size: 18px;
-            }
-
-            .btn-back {
-                padding: 8px 14px;
-                font-size: 12px;
-            }
-
-            .plate-small {
-                font-size: 13px;
-                padding: 4px 12px;
-            }
-
-            thead th, tbody td {
-                padding: 8px 6px;
-                font-size: 11px;
-            }
-
-            .total-summary {
-                padding: 12px 16px;
-            }
-
-            .total-summary .value {
-                font-size: 20px;
-            }
-
-            .dashboard {
-                border-radius: 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 4px;
-            }
-
-            .login-card {
-                padding: 20px 12px;
-                border-radius: 16px;
-            }
-
-            .logo {
-                width: 60px;
-                height: 60px;
-                border-radius: 20px;
-                font-size: 28px;
-            }
-
-            h1 {
-                font-size: 20px;
-            }
-
-            .tagline {
-                font-size: 12px;
-                margin-bottom: 20px;
-            }
-
-            .input-wrapper input {
-                font-size: 16px;
-                padding: 14px 14px 14px 40px;
-            }
-
-            .btn-primary {
-                padding: 14px;
-                font-size: 14px;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 6px;
-            }
-
-            .stat-item {
-                padding: 10px 6px;
-                border-radius: 12px;
-            }
-
-            .stat-value {
-                font-size: 18px;
-            }
-
-            .stat-icon {
-                font-size: 18px;
-                margin-bottom: 4px;
-            }
-
-            .stat-label {
-                font-size: 9px;
-            }
-
-            .dashboard-header {
-                padding: 10px 10px;
-                border-radius: 16px 16px 0 0;
-            }
-
-            .page {
-                padding: 8px 4px;
-            }
-
-            .page-title {
-                font-size: 16px;
-            }
-
-            .page-subtitle {
-                font-size: 11px;
-                margin-bottom: 12px;
-            }
-
-            .btn-back {
-                padding: 6px 12px;
-                font-size: 11px;
-            }
-
-            .btn-back .btn-label {
-                display: none;
-            }
-
-            .plate-small {
-                font-size: 11px;
-                padding: 3px 10px;
-                letter-spacing: 1px;
-            }
-
-            .vehicle-model-right {
-                font-size: 12px;
-            }
-
-            .table-container {
-                border-radius: 12px;
-            }
-
-            thead th, tbody td {
-                padding: 6px 4px;
-                font-size: 10px;
-            }
-
-            .badge {
-                font-size: 9px;
-                padding: 2px 8px;
-            }
-
-            .total-summary {
-                padding: 10px 12px;
-                border-radius: 12px;
-            }
-
-            .total-summary .label {
-                font-size: 12px;
-            }
-
-            .total-summary .value {
-                font-size: 18px;
-            }
-
-            .dashboard {
-                border-radius: 16px;
-            }
-
-            .chips {
-                gap: 6px;
-            }
-
-            .chip {
-                padding: 8px 14px;
-                font-size: 12px;
-            }
-
-            .examples-box {
-                padding: 12px;
-                border-radius: 16px;
-            }
-        }
-    </style>
 </head>
 <body>
 
+    <!-- ============================================================
+    ELEMENTOS DECORATIVOS (BLOBS)
+    ============================================================ -->
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
     <div class="blob blob-3"></div>
 
-    <div class="main-container">
+    <!-- ============================================================
+    SIDEBAR (MENU LATERAL)
+    ============================================================ -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-        <!-- ===== TELA DE LOGIN ===== -->
-        <div id="loginScreen" class="login-card">
-            <div class="logo">🚗</div>
+    <nav class="sidebar" id="sidebar">
+        <!-- Cabeçalho da sidebar -->
+        <div class="sidebar-header">
+            <div class="sidebar-brand">
+              <div class="sidebar-logo">
+    <img src="icon-aluguel.png" alt="Logo" style="width:100%; height:100%; object-fit:cover;">
+</div>
+                <div class="sidebar-brand-text">
+                    <h2>Suave<span>Consulta</span></h2>
+                    <span>Débitos veiculares</span>
+                </div>
+            </div>
+            <button class="sidebar-close" onclick="closeSidebar()" aria-label="Fechar menu">✕</button>
+        </div>
+
+        <!-- Veículo atual -->
+        <div class="sidebar-vehicle" id="sidebarVehicle">
+            <div class="sidebar-vehicle-icon">🚙</div>
+            <div class="sidebar-vehicle-info">
+                <div class="model" id="sidebarVehicleModel">Nenhum veículo</div>
+                <div class="plate" id="sidebarVehiclePlate">---</div>
+            </div>
+        </div>
+
+        <!-- Navegação -->
+        <nav class="sidebar-nav">
+            <div class="sidebar-nav-label">Menu</div>
+
+            <button class="sidebar-nav-item" data-page="overview" onclick="navigateTo('overview')">
+                <span class="nav-icon">📊</span>
+                <span>Visão Geral</span>
+            </button>
+
+            <button class="sidebar-nav-item active" data-page="debts" onclick="navigateTo('debts')">
+                <span class="nav-icon">📌</span>
+                <span>Débitos</span>
+                <span class="nav-badge" id="sidebarDebtBadge">0</span>
+            </button>
+
+            <button class="sidebar-nav-item" data-page="maintenance" onclick="navigateTo('maintenance')">
+                <span class="nav-icon">🔧</span>
+                <span>Manutenções</span>
+                <span class="nav-badge" id="sidebarMaintenanceBadge">0</span>
+            </button>
+
+            <button class="sidebar-nav-item" data-page="history" onclick="navigateTo('history')">
+                <span class="nav-icon">📜</span>
+                <span>Histórico</span>
+            </button>
+
+            <button class="sidebar-nav-item" data-page="summary" onclick="navigateTo('summary')">
+                <span class="nav-icon">📈</span>
+                <span>Resumo</span>
+            </button>
+
+            <div class="sidebar-nav-label" style="margin-top: 12px;">Ajuda</div>
+
+            <button class="sidebar-nav-item" onclick="showHelp()">
+                <span class="nav-icon">❓</span>
+                <span>Ajuda</span>
+                <span class="nav-arrow">→</span>
+            </button>
+
+            <button class="sidebar-nav-item" onclick="showAbout()">
+                <span class="nav-icon">ℹ️</span>
+                <span>Sobre</span>
+                <span class="nav-arrow">→</span>
+            </button>
+        </nav>
+
+        <!-- Rodapé da sidebar -->
+        <div class="sidebar-footer">
+            <button class="btn-logout" onclick="handleLogout()">
+                <span>🚪</span> Nova consulta
+            </button>
+            <div class="sidebar-version">v2.0.0 • SuaveConsulta</div>
+        </div>
+    </nav>
+
+    <!-- ============================================================
+    CONTEÚDO PRINCIPAL
+    ============================================================ -->
+    <div class="main-content" id="mainContent">
+
+        <!-- ============================================================
+        TELA DE LOGIN
+        ============================================================ -->
+        <div id="loginScreen" class="login-card soft-card">
+            <div class="logo">
+    <img src="icon-aluguel.png" alt="Logo" style="width:100%; height:100%; object-fit:cover;">
+</div>
             <h1>Suave<span>Consulta</span></h1>
             <div class="tagline">Consulte débitos do seu veículo instantaneamente</div>
 
-            <div id="loginAlert" class="alert"></div>
+            <div id="loginAlert" class="alert alert-error"></div>
 
             <div class="input-group">
                 <label>Placa do veículo</label>
@@ -844,13 +148,19 @@
             </div>
         </div>
 
-        <!-- ===== DASHBOARD ===== -->
-        <div id="dashboard" class="dashboard">
-            <!-- Cabeçalho -->
+        <!-- ============================================================
+        DASHBOARD
+        ============================================================ -->
+        <div id="dashboard" class="dashboard soft-card">
+
+            <!-- Cabeçalho do dashboard -->
             <div class="dashboard-header">
                 <div class="dashboard-header-left">
-                    <button class="btn-back" onclick="handleLogout()">
-                        <span>←</span> <span class="btn-label">Nova consulta</span>
+                    <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Abrir menu">
+                        ☰ <span class="btn-label">Menu</span>
+                    </button>
+                    <button class="btn-secondary" onclick="handleLogout()">
+                        ← Nova consulta
                     </button>
                 </div>
                 <div class="vehicle-info-right">
@@ -859,288 +169,106 @@
                 </div>
             </div>
 
-            <!-- Alertas -->
-            <div id="dashboardAlert" class="alert dashboard-alert"></div>
+            <!-- Alertas do dashboard -->
+            <div id="dashboardAlert" class="alert" style="margin: 0 16px;"></div>
 
-            <!-- ===== PÁGINA: VISÃO GERAL ===== -->
-            <div class="page active" id="page-overview">
+            <!-- ============================================================
+            PÁGINA: VISÃO GERAL
+            ============================================================ -->
+            <div class="page" id="page-overview">
                 <div class="page-title">📊 Visão Geral</div>
                 <div class="page-subtitle">Resumo rápido da situação do seu veículo</div>
                 <div class="stats-grid" id="statsGrid"></div>
             </div>
 
-            <!-- ===== PÁGINA: PAGAMENTOS ===== -->
-            <div class="page" id="page-pagamentos">
-                <div class="page-title">💰 Pagamentos</div>
-                <div class="page-subtitle">Histórico completo de pagamentos do veículo</div>
-                <div class="table-container" id="pagamentosContainer"></div>
+            <!-- ============================================================
+            PÁGINA: DÉBITOS (ATIVA POR PADRÃO)
+            ============================================================ -->
+            <div class="page active" id="page-debts">
+                <div class="page-title">📌 Débitos Pendentes</div>
+                <div class="page-subtitle">Todos os débitos em aberto do veículo</div>
+                <div class="table-container" id="debtsContainer"></div>
             </div>
+
+            <!-- ============================================================
+            PÁGINA: MANUTENÇÕES
+            ============================================================ -->
+            <div class="page" id="page-maintenance">
+                <div class="page-title">🔧 Manutenções</div>
+                <div class="page-subtitle">Histórico de manutenções, peças trocadas e custos</div>
+                <div class="table-container" id="maintenanceContainer"></div>
+            </div>
+
+            <!-- ============================================================
+            PÁGINA: HISTÓRICO
+            ============================================================ -->
+            <div class="page" id="page-history">
+                <div class="page-title">📜 Histórico de Pagamentos</div>
+                <div class="page-subtitle">Registro de todos os pagamentos realizados</div>
+                <div class="table-container" id="historyContainer"></div>
+            </div>
+
+            <!-- ============================================================
+            PÁGINA: RESUMO
+            ============================================================ -->
+            <div class="page" id="page-summary">
+                <div class="page-title">📈 Resumo Completo</div>
+                <div class="page-subtitle">Análise detalhada da situação financeira do veículo</div>
+                <div id="summaryContainer"></div>
+            </div>
+
         </div>
+        <!-- Fim do dashboard -->
 
     </div>
+    <!-- Fim do main-content -->
 
-    <script>
-        // ============================================================
-        // VARIÁVEIS GLOBAIS
-        // ============================================================
-        let currentVehicle = null;
-        let currentPayments = [];
+    <!-- ============================================================
+    MODAL PIX
+    ============================================================ -->
+    <div id="pixModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="pix-icon-large">
+                <img src="https://img.icons8.com/?size=100&id=Dk4sj0EM4b20&format=png&color=000000" alt="PIX">
+            </div>
+            <h4>Pagar com PIX</h4>
+            <p style="color: #7e8b9b; margin-bottom: 8px; font-size: 13px;">Detalhes do débito:</p>
 
-        // ============================================================
-        // LOGIN
-        // ============================================================
-        function handleLogin() {
-            const input = document.getElementById('plateInput');
-            const placa = input.value.trim().toUpperCase();
+            <div class="modal-debt-info" id="modalDebtInfo">
+                <div class="info-row">
+                    <span class="info-label">📝 Descrição</span>
+                    <span class="info-value" id="modalDebtDesc">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">📅 Vencimento</span>
+                    <span class="info-value" id="modalDebtDueDate">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">📊 Status</span>
+                    <span class="info-value" id="modalDebtStatus">-</span>
+                </div>
+            </div>
 
-            if (!placa) {
-                showAlert('loginAlert', 'Por favor, digite uma placa.', 'error');
-                return;
-            }
+            <div id="modalFeeDetail" class="modal-fee-detail" style="display: none;"></div>
+            <div class="modal-amount" id="modalAmount">R$ 0,00</div>
 
-            // Validação básica de placa (formato Mercosul ou antigo)
-            const placaPattern = /^[A-Z]{3}[0-9][0-9A-Z][0-9]{2}$/;
-            if (!placaPattern.test(placa)) {
-                showAlert('loginAlert', 'Formato de placa inválido. Use ABC1D23 ou ABC1234.', 'error');
-                return;
-            }
+            <div class="qrcode-container">
+                <div id="qrcodeArea" class="qrcode-placeholder">
+                    <div class="loading-spinner"></div>
+                    <span>Gerando PIX...</span>
+                </div>
+            </div>
 
-            const btn = document.getElementById('loginBtn');
-            btn.disabled = true;
-            btn.innerHTML = '⏳ Consultando...';
+            <div class="pix-code" id="pixCode">Carregando código PIX...</div>
+            <div>
+                <button class="btn-copy" onclick="copyPixCode()">📋 Copiar código</button>
+                <button class="btn-close" onclick="closePixModal()">Fechar</button>
+            </div>
+            <p style="font-size: 10px; color: #55698f; margin-top: 14px;">Pagamento seguro via Mercado Pago</p>
+        </div>
+    </div>
 
-            fetch('/api/consulta/' + encodeURIComponent(placa))
-                .then(r => r.json())
-                .then(data => {
-                    btn.disabled = false;
-                    btn.innerHTML = '<span>🔍</span> Consultar débitos';
-
-                    if (data.error) {
-                        showAlert('loginAlert', data.error, 'error');
-                        return;
-                    }
-
-                    currentVehicle = data.veiculo;
-                    currentPayments = data.pagamentos || [];
-
-                    // Esconde a tela de login e mostra o dashboard
-                    document.getElementById('loginScreen').style.display = 'none';
-                    document.getElementById('dashboard').classList.add('active');
-
-                    // Atualiza as informações do veículo
-                    document.getElementById('vehicleModel').textContent = 
-                        currentVehicle.modelo + ' ' + currentVehicle.marca + ' ' + currentVehicle.ano;
-                    document.getElementById('plateDisplay').textContent = currentVehicle.placa;
-
-                    // Limpa alertas anteriores
-                    document.getElementById('dashboardAlert').className = 'alert dashboard-alert';
-                    document.getElementById('dashboardAlert').textContent = '';
-
-                    // Renderiza os dados
-                    renderOverview();
-                    renderPagamentos();
-                    showPage('overview');
-
-                    // Adiciona a placa à URL para compartilhamento
-                    const url = new URL(window.location);
-                    url.searchParams.set('placa', placa);
-                    window.history.pushState({}, '', url);
-                })
-                .catch(err => {
-                    btn.disabled = false;
-                    btn.innerHTML = '<span>🔍</span> Consultar débitos';
-                    showAlert('loginAlert', 'Erro ao consultar. Verifique sua conexão e tente novamente.', 'error');
-                    console.error('Erro na consulta:', err);
-                });
-        }
-
-        function setExamplePlate(placa) {
-            document.getElementById('plateInput').value = placa;
-            handleLogin();
-        }
-
-        function showPage(page) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            const targetPage = document.getElementById('page-' + page);
-            if (targetPage) {
-                targetPage.classList.add('active');
-            }
-        }
-
-        function renderOverview() {
-            const grid = document.getElementById('statsGrid');
-
-            const totalPagos = currentPayments.reduce((sum, p) => sum + p.valor, 0);
-            const totalPagamentos = currentPayments.length;
-
-            let ultimoPagamento = 'Nenhum';
-            if (currentPayments.length > 0) {
-                const sorted = [...currentPayments].sort((a, b) => 
-                    new Date(b.data_pagamento) - new Date(a.data_pagamento)
-                );
-                ultimoPagamento = formatarData(sorted[0].data_pagamento);
-            }
-
-            grid.innerHTML = 
-                '<div class="stat-item">' +
-                    '<div class="stat-icon">💰</div>' +
-                    '<div class="stat-value success">R$ ' + totalPagos.toFixed(2).replace('.', ',') + '</div>' +
-                    '<div class="stat-label">Total pago</div>' +
-                '</div>' +
-                '<div class="stat-item">' +
-                    '<div class="stat-icon">📄</div>' +
-                    '<div class="stat-value">' + totalPagamentos + '</div>' +
-                    '<div class="stat-label">Pagamentos</div>' +
-                '</div>' +
-                '<div class="stat-item">' +
-                    '<div class="stat-icon">📅</div>' +
-                    '<div class="stat-value" style="font-size:16px;">' + ultimoPagamento + '</div>' +
-                    '<div class="stat-label">Último pagamento</div>' +
-                '</div>' +
-                '<div class="stat-item">' +
-                    '<div class="stat-icon">🚗</div>' +
-                    '<div class="stat-value" style="font-size:16px;">' + currentVehicle.modelo + '</div>' +
-                    '<div class="stat-label">' + currentVehicle.marca + ' ' + currentVehicle.ano + '</div>' +
-                '</div>';
-        }
-
-        function renderPagamentos() {
-            const container = document.getElementById('pagamentosContainer');
-
-            if (!currentPayments || currentPayments.length === 0) {
-                container.innerHTML = 
-                    '<div class="empty-state">' +
-                        '<div class="empty-icon">📭</div>' +
-                        '<div class="empty-title">Nenhum pagamento registrado</div>' +
-                        '<div class="empty-desc">Este veículo ainda não possui pagamentos cadastrados.</div>' +
-                    '</div>';
-                return;
-            }
-
-            let html = 
-                '<table>' +
-                    '<thead>' +
-                        '<tr>' +
-                            '<th style="width:25%;">Descrição</th>' +
-                            '<th style="width:25%;">Valor</th>' +
-                            '<th style="width:25%;">Data</th>' +
-                            '<th style="width:25%;">Forma de Pagamento</th>' +
-                        '</tr>' +
-                    '</thead>' +
-                    '<tbody>';
-
-            let total = 0;
-            currentPayments.forEach(function(p) {
-                total += p.valor;
-                html += 
-                    '<tr>' +
-                        '<td>' + p.descricao + '</td>' +
-                        '<td><strong style="color:#6ac8a0;">R$ ' + p.valor.toFixed(2).replace('.', ',') + '</strong></td>' +
-                        '<td>' + formatarData(p.data_pagamento) + '</td>' +
-                        '<td>' + (p.forma_pagamento || '-') + '</td>' +
-                    '</tr>';
-            });
-
-            html += 
-                    '</tbody>' +
-                '</table>' +
-                '<div class="total-summary">' +
-                    '<span class="label">💰 Total Geral</span>' +
-                    '<span class="value">R$ ' + total.toFixed(2).replace('.', ',') + '</span>' +
-                '</div>';
-
-            container.innerHTML = html;
-        }
-
-        function handleLogout() {
-            // Limpa os dados
-            currentVehicle = null;
-            currentPayments = [];
-            
-            // Esconde o dashboard
-            document.getElementById('dashboard').classList.remove('active');
-            
-            // Mostra a tela de login
-            document.getElementById('loginScreen').style.display = 'block';
-            
-            // Limpa os campos
-            document.getElementById('plateInput').value = '';
-            document.getElementById('plateInput').focus();
-            
-            // Limpa alertas
-            document.getElementById('loginAlert').className = 'alert';
-            document.getElementById('loginAlert').textContent = '';
-            document.getElementById('dashboardAlert').className = 'alert dashboard-alert';
-            document.getElementById('dashboardAlert').textContent = '';
-            
-            // Remove a placa da URL
-            const url = new URL(window.location);
-            url.searchParams.delete('placa');
-            window.history.pushState({}, '', url);
-        }
-
-        function showAlert(id, message, type) {
-            const el = document.getElementById(id);
-            if (!el) return;
-            el.textContent = message;
-            el.className = 'alert alert-' + type + ' show';
-        }
-
-        function formatarData(data) {
-            if (!data) return '-';
-            try {
-                const d = new Date(data + 'T00:00:00');
-                if (isNaN(d.getTime())) return data;
-                return d.toLocaleDateString('pt-BR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                });
-            } catch {
-                return data;
-            }
-        }
-
-        // Event Listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            // Enter para consultar
-            document.getElementById('plateInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    handleLogin();
-                }
-            });
-
-            // Verifica se há placa na URL ao carregar
-            const urlParams = new URLSearchParams(window.location.search);
-            const placa = urlParams.get('placa');
-            if (placa) {
-                document.getElementById('plateInput').value = placa.toUpperCase();
-                // Pequeno delay para garantir que a página carregou completamente
-                setTimeout(handleLogin, 100);
-            }
-
-            // Prevenir zoom duplo em campos de input em dispositivos móveis
-            document.querySelectorAll('input').forEach(input => {
-                input.addEventListener('touchend', function(e) {
-                    if (this.getAttribute('readonly')) return;
-                    e.preventDefault();
-                    this.focus();
-                });
-            });
-        });
-
-        // Handle popstate (quando o usuário usa o botão voltar/avançar)
-        window.addEventListener('popstate', function(event) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const placa = urlParams.get('placa');
-            if (placa) {
-                document.getElementById('plateInput').value = placa.toUpperCase();
-                handleLogin();
-            } else if (currentVehicle) {
-                handleLogout();
-            }
-        });
-    </script>
-
+    <!-- Scripts -->
+    <script src="script.js"></script>
 </body>
 </html>
