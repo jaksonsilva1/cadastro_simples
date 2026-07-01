@@ -433,6 +433,138 @@ app.put('/api/editar-manutencao/:id', (req, res) => {
         res.json({ success: true, message: 'Manutenção atualizada com sucesso!' });
     });
 });
+
+// ============================================================
+// ROTAS - VEÍCULOS (EDIÇÃO)
+// ============================================================
+
+// API: Buscar um veículo específico
+app.get('/api/veiculo/:id', (req, res) => {
+    const id = req.params.id;
+    
+    if (!id || isNaN(id)) {
+        return res.status(400).json({ error: 'ID inválido' });
+    }
+    
+    db.get('SELECT * FROM veiculos WHERE id = ?', [id], (err, row) => {
+        if (err) {
+            console.error('Erro ao buscar veículo:', err);
+            return res.status(500).json({ error: 'Erro ao buscar veículo' });
+        }
+        if (!row) {
+            return res.status(404).json({ error: 'Veículo não encontrado' });
+        }
+        res.json(row);
+    });
+});
+
+// API: Editar veículo
+app.put('/api/editar-veiculo/:id', (req, res) => {
+    const id = req.params.id;
+    const { modelo, marca, ano, placa, cor } = req.body;
+    
+    console.log('✏️ Editando veículo ID:', id);
+    console.log('📝 Dados recebidos:', req.body);
+    
+    if (!modelo || !marca || !ano || !placa) {
+        return res.status(400).json({ success: false, message: 'Campos obrigatórios faltando' });
+    }
+    
+    const placaUpper = placa.toUpperCase().trim();
+    const anoNum = parseInt(ano);
+    
+    if (isNaN(anoNum) || anoNum < 1900 || anoNum > 2100) {
+        return res.status(400).json({ success: false, message: 'Ano inválido' });
+    }
+    
+    db.run(`
+        UPDATE veiculos 
+        SET modelo = ?, 
+            marca = ?, 
+            ano = ?, 
+            placa = ?, 
+            cor = ?
+        WHERE id = ?
+    `, [modelo, marca, anoNum, placaUpper, cor || '', id],
+    function(err) {
+        if (err) {
+            if (err.message.includes('UNIQUE')) {
+                return res.status(400).json({ success: false, message: 'Esta placa já está cadastrada!' });
+            }
+            console.error('Erro ao editar veículo:', err);
+            return res.status(500).json({ success: false, message: 'Erro ao editar veículo' });
+        }
+        if (this.changes === 0) {
+            return res.status(404).json({ success: false, message: 'Veículo não encontrado' });
+        }
+        console.log('✅ Veículo atualizado com sucesso!');
+        res.json({ success: true, message: 'Veículo atualizado com sucesso!' });
+    });
+});
+
+// ============================================================
+// ROTAS - PAGAMENTOS (EDIÇÃO)
+// ============================================================
+
+// API: Buscar um pagamento específico
+app.get('/api/pagamento/:id', (req, res) => {
+    const id = req.params.id;
+    
+    if (!id || isNaN(id)) {
+        return res.status(400).json({ error: 'ID inválido' });
+    }
+    
+    db.get('SELECT * FROM pagamentos WHERE id = ?', [id], (err, row) => {
+        if (err) {
+            console.error('Erro ao buscar pagamento:', err);
+            return res.status(500).json({ error: 'Erro ao buscar pagamento' });
+        }
+        if (!row) {
+            return res.status(404).json({ error: 'Pagamento não encontrado' });
+        }
+        res.json(row);
+    });
+});
+
+// API: Editar pagamento
+app.put('/api/editar-pagamento/:id', (req, res) => {
+    const id = req.params.id;
+    const { veiculo_id, descricao, valor, data_pagamento, forma_pagamento, observacao } = req.body;
+    
+    console.log('✏️ Editando pagamento ID:', id);
+    console.log('📝 Dados recebidos:', req.body);
+    
+    if (!veiculo_id || !descricao || !valor || !data_pagamento) {
+        return res.status(400).json({ success: false, message: 'Campos obrigatórios faltando' });
+    }
+    
+    const valorNum = parseFloat(valor);
+    if (isNaN(valorNum) || valorNum <= 0) {
+        return res.status(400).json({ success: false, message: 'Valor inválido' });
+    }
+    
+    db.run(`
+        UPDATE pagamentos 
+        SET veiculo_id = ?, 
+            descricao = ?, 
+            valor = ?, 
+            data_pagamento = ?, 
+            forma_pagamento = ?, 
+            observacao = ?
+        WHERE id = ?
+    `, [veiculo_id, descricao, valorNum, data_pagamento, forma_pagamento, observacao || '', id],
+    function(err) {
+        if (err) {
+            console.error('Erro ao editar pagamento:', err);
+            return res.status(500).json({ success: false, message: 'Erro ao editar pagamento' });
+        }
+        if (this.changes === 0) {
+            return res.status(404).json({ success: false, message: 'Pagamento não encontrado' });
+        }
+        console.log('✅ Pagamento atualizado com sucesso!');
+        res.json({ success: true, message: 'Pagamento atualizado com sucesso!' });
+    });
+});
 app.listen(PORT, () => {
     console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
     console.log(`🔍 Página de consulta: http://localhost:${PORT}/consulta`);

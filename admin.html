@@ -136,7 +136,7 @@
         
         .lista-header {
             display: grid;
-            grid-template-columns: 1.5fr 2fr 1.8fr 1.2fr 1.2fr 1.2fr;
+            grid-template-columns: 1.5fr 1.5fr 1fr 1.2fr 1fr 1.2fr;
             gap: 10px;
             padding: 10px 15px;
             background: #f7fafc;
@@ -148,7 +148,7 @@
         }
         .item {
             display: grid;
-            grid-template-columns: 1.5fr 2fr 1.8fr 1.2fr 1.2fr 1.2fr;
+            grid-template-columns: 1.5fr 1.5fr 1fr 1.2fr 1fr 1.2fr;
             gap: 10px;
             align-items: center;
             padding: 10px 15px;
@@ -389,58 +389,164 @@
         </div>
     </div>
 
-    <!-- MODAL DE EDIÇÃO -->
-    <div class="modal-overlay" id="editModal">
+    <!-- ============================================================
+    MODAL DE EDIÇÃO - VEÍCULO
+    ============================================================ -->
+    <div class="modal-overlay" id="editVeiculoModal">
         <div class="modal-content">
-            <button class="modal-close" onclick="fecharModal()">&times;</button>
-            <h2>✏️ Editar Manutenção</h2>
-            <form id="editForm">
-                <input type="hidden" name="id" id="editId">
+            <button class="modal-close" onclick="fecharModal('editVeiculoModal')">&times;</button>
+            <h2>✏️ Editar Veículo</h2>
+            <form id="editVeiculoForm">
+                <input type="hidden" name="id" id="editVeiculoId">
                 
                 <div class="form-group">
                     <div>
-                        <label>Veículo *</label>
-                        <select name="veiculo_id" id="editVeiculoId" required>
-                            <option value="">Selecione um veículo</option>
-                        </select>
+                        <label>Modelo *</label>
+                        <input type="text" name="modelo" id="editVeiculoModelo" placeholder="Ex: Civic" required>
                     </div>
                     <div>
-                        <label>Data da Manutenção *</label>
-                        <input type="date" name="data_manutencao" id="editDataManutencao" required>
+                        <label>Marca *</label>
+                        <input type="text" name="marca" id="editVeiculoMarca" placeholder="Ex: Honda" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label>Ano *</label>
+                        <input type="number" name="ano" id="editVeiculoAno" placeholder="2020" required min="1900" max="2100">
+                    </div>
+                    <div>
+                        <label>Placa *</label>
+                        <input type="text" name="placa" id="editVeiculoPlaca" placeholder="ABC-1234" required style="text-transform: uppercase;">
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="form-group-full">
-                        <label>Descrição do Serviço *</label>
-                        <input type="text" name="descricao" id="editDescricao" placeholder="Ex: Troca de óleo, Revisão..." required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div>
-                        <label>Peças Trocadas</label>
-                        <input type="text" name="pecas" id="editPecas" placeholder="Ex: Óleo 5W30, Filtro de óleo">
-                    </div>
-                    <div>
-                        <label>Mão de Obra (R$)</label>
-                        <input type="number" name="mao_obra" id="editMaoObra" placeholder="0,00" step="0.01">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="form-group-full">
-                        <label>Total (R$) *</label>
-                        <input type="number" name="total" id="editTotal" placeholder="0,00" step="0.01" required>
+                        <label>Cor</label>
+                        <input type="text" name="cor" id="editVeiculoCor" placeholder="Ex: Prata">
                     </div>
                 </div>
                 
                 <div style="display: flex; gap: 10px; margin-top: 10px;">
                     <button type="submit" class="btn btn-info btn-block">💾 Salvar Alterações</button>
-                    <button type="button" class="btn btn-danger" onclick="fecharModal()">Cancelar</button>
+                    <button type="button" class="btn btn-danger" onclick="fecharModal('editVeiculoModal')">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    MODAL DE EDIÇÃO - PAGAMENTO
+    ============================================================ -->
+    <div class="modal-overlay" id="editPagamentoModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="fecharModal('editPagamentoModal')">&times;</button>
+            <h2>✏️ Editar Pagamento</h2>
+            <form id="editPagamentoForm">
+                <input type="hidden" name="id" id="editPagamentoId">
+                
+                <div class="form-group">
+                    <div>
+                        <label>Veículo *</label>
+                        <select name="veiculo_id" id="editPagamentoVeiculoId" required>
+                            <option value="">Selecione um veículo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Data do Pagamento *</label>
+                        <input type="date" name="data_pagamento" id="editPagamentoData" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label>Descrição *</label>
+                        <input type="text" name="descricao" id="editPagamentoDescricao" placeholder="Ex: IPVA, Multa..." required>
+                    </div>
+                    <div>
+                        <label>Valor (R$) *</label>
+                        <input type="number" name="valor" id="editPagamentoValor" placeholder="0,00" step="0.01" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label>Forma de Pagamento</label>
+                        <select name="forma_pagamento" id="editPagamentoForma">
+                            <option value="Pendente">Pendente</option>
+                            <option value="Pago">Pago</option>
+                            <option value="Atrasado">Atrasado</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Observação</label>
+                        <input type="text" name="observacao" id="editPagamentoObservacao" placeholder="Observações adicionais...">
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button type="submit" class="btn btn-info btn-block">💾 Salvar Alterações</button>
+                    <button type="button" class="btn btn-danger" onclick="fecharModal('editPagamentoModal')">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    MODAL DE EDIÇÃO - MANUTENÇÃO
+    ============================================================ -->
+    <div class="modal-overlay" id="editManutencaoModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="fecharModal('editManutencaoModal')">&times;</button>
+            <h2>✏️ Editar Manutenção</h2>
+            <form id="editManutencaoForm">
+                <input type="hidden" name="id" id="editManutencaoId">
+                
+                <div class="form-group">
+                    <div>
+                        <label>Veículo *</label>
+                        <select name="veiculo_id" id="editManutencaoVeiculoId" required>
+                            <option value="">Selecione um veículo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Data da Manutenção *</label>
+                        <input type="date" name="data_manutencao" id="editManutencaoData" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-group-full">
+                        <label>Descrição do Serviço *</label>
+                        <input type="text" name="descricao" id="editManutencaoDescricao" placeholder="Ex: Troca de óleo, Revisão..." required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label>Peças Trocadas</label>
+                        <input type="text" name="pecas" id="editManutencaoPecas" placeholder="Ex: Óleo 5W30, Filtro de óleo">
+                    </div>
+                    <div>
+                        <label>Mão de Obra (R$)</label>
+                        <input type="number" name="mao_obra" id="editManutencaoMaoObra" placeholder="0,00" step="0.01">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-group-full">
+                        <label>Total (R$) *</label>
+                        <input type="number" name="total" id="editManutencaoTotal" placeholder="0,00" step="0.01" required>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button type="submit" class="btn btn-info btn-block">💾 Salvar Alterações</button>
+                    <button type="button" class="btn btn-danger" onclick="fecharModal('editManutencaoModal')">Cancelar</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
+        // ============================================================
+        // FUNÇÕES GERAIS
+        // ============================================================
+        
         function abrirTab(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -468,6 +574,20 @@
             setTimeout(() => { msg.className = 'mensagem'; }, 5000);
         }
         
+        function fecharModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        
+        function formatarData(data) {
+            if (!data) return '';
+            const d = new Date(data + 'T00:00:00');
+            return d.toLocaleDateString('pt-BR');
+        }
+        
+        // ============================================================
+        // CARREGAR DADOS
+        // ============================================================
+        
         function carregarVeiculos() {
             fetch('/api/veiculos')
                 .then(r => r.json())
@@ -485,6 +605,7 @@
                             html += '  <span class="placa">' + v.placa + '</span>';
                             html += '  <span>' + (v.cor || '-') + '</span>';
                             html += '  <div class="acoes">';
+                            html += '    <button class="btn btn-info btn-sm" onclick="abrirEditarVeiculo(' + v.id + ')">✏️</button>';
                             html += '    <button class="btn btn-danger btn-sm" onclick="excluirVeiculo(' + v.id + ')">🗑️</button>';
                             html += '  </div>';
                             html += '</div>';
@@ -493,7 +614,7 @@
                     }
                     
                     // Atualiza selects
-                    const selects = ['selectVeiculo', 'selectVeiculoManutencao', 'editVeiculoId'];
+                    const selects = ['selectVeiculo', 'selectVeiculoManutencao', 'editPagamentoVeiculoId', 'editManutencaoVeiculoId'];
                     selects.forEach(id => {
                         const select = document.getElementById(id);
                         if (select) {
@@ -530,6 +651,7 @@
                         html += '  <span>' + formatarData(p.data_pagamento) + '</span>';
                         html += '  <span>' + (p.forma_pagamento || '-') + '</span>';
                         html += '  <div class="acoes">';
+                        html += '    <button class="btn btn-info btn-sm" onclick="abrirEditarPagamento(' + p.id + ')">✏️</button>';
                         html += '    <button class="btn btn-danger btn-sm" onclick="excluirPagamento(' + p.id + ')">🗑️</button>';
                         html += '  </div>';
                         html += '</div>';
@@ -575,98 +697,138 @@
                 });
         }
         
-        function formatarData(data) {
-            if (!data) return '';
-            const d = new Date(data + 'T00:00:00');
-            return d.toLocaleDateString('pt-BR');
-        }
+        // ============================================================
+        // EDIÇÃO - VEÍCULO
+        // ============================================================
         
-        // ============================================================
-        // ABRIR MODAL DE EDIÇÃO
-        // ============================================================
-        function abrirEditarManutencao(id) {
-            console.log('Editando manutenção ID:', id);
-            
-            // Buscar os dados da manutenção
-            fetch('/api/manutencao/' + id)
-                .then(response => {
-                    console.log('Status da resposta:', response.status);
-                    if (!response.ok) {
-                        throw new Error('Erro na requisição: ' + response.status);
-                    }
-                    return response.json();
-                })
+        function abrirEditarVeiculo(id) {
+            fetch('/api/veiculo/' + id)
+                .then(response => response.json())
                 .then(data => {
-                    console.log('Dados recebidos:', data);
-                    
-                    if (data.error) {
-                        mostrarMensagem('Erro: ' + data.error, 'erro');
-                        return;
-                    }
-                    
-                    // Preencher o formulário
-                    document.getElementById('editId').value = data.id;
-                    document.getElementById('editVeiculoId').value = data.veiculo_id;
-                    document.getElementById('editDataManutencao').value = data.data_manutencao;
-                    document.getElementById('editDescricao').value = data.descricao;
-                    document.getElementById('editPecas').value = data.pecas || '';
-                    document.getElementById('editMaoObra').value = data.mao_obra || 0;
-                    document.getElementById('editTotal').value = data.total;
-                    
-                    // Abrir o modal
-                    document.getElementById('editModal').classList.add('active');
+                    document.getElementById('editVeiculoId').value = data.id;
+                    document.getElementById('editVeiculoModelo').value = data.modelo;
+                    document.getElementById('editVeiculoMarca').value = data.marca;
+                    document.getElementById('editVeiculoAno').value = data.ano;
+                    document.getElementById('editVeiculoPlaca').value = data.placa;
+                    document.getElementById('editVeiculoCor').value = data.cor || '';
+                    document.getElementById('editVeiculoModal').classList.add('active');
                 })
-                .catch(error => {
-                    console.error('Erro detalhado:', error);
-                    mostrarMensagem('Erro ao carregar dados da manutenção: ' + error.message, 'erro');
-                });
+                .catch(() => mostrarMensagem('Erro ao carregar dados do veículo', 'erro'));
         }
         
-        // ============================================================
-        // FECHAR MODAL
-        // ============================================================
-        function fecharModal() {
-            document.getElementById('editModal').classList.remove('active');
-        }
-        
-        // ============================================================
-        // SALVAR EDIÇÃO (via AJAX)
-        // ============================================================
-        document.getElementById('editForm').addEventListener('submit', function(e) {
+        document.getElementById('editVeiculoForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
             const formData = new FormData(this);
             const data = Object.fromEntries(formData);
             
-            console.log('Enviando edição:', data);
-            
-            fetch('/api/editar-manutencao/' + data.id, {
+            fetch('/api/editar-veiculo/' + data.id, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             })
             .then(response => response.json())
             .then(result => {
-                console.log('Resposta da edição:', result);
                 if (result.success) {
                     mostrarMensagem(result.message, 'sucesso');
-                    fecharModal();
+                    fecharModal('editVeiculoModal');
+                    carregarVeiculos();
+                } else {
+                    mostrarMensagem(result.message || 'Erro ao editar veículo', 'erro');
+                }
+            })
+            .catch(() => mostrarMensagem('Erro ao editar veículo', 'erro'));
+        });
+        
+        // ============================================================
+        // EDIÇÃO - PAGAMENTO
+        // ============================================================
+        
+        function abrirEditarPagamento(id) {
+            fetch('/api/pagamento/' + id)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('editPagamentoId').value = data.id;
+                    document.getElementById('editPagamentoVeiculoId').value = data.veiculo_id;
+                    document.getElementById('editPagamentoData').value = data.data_pagamento;
+                    document.getElementById('editPagamentoDescricao').value = data.descricao;
+                    document.getElementById('editPagamentoValor').value = data.valor;
+                    document.getElementById('editPagamentoForma').value = data.forma_pagamento || 'Pendente';
+                    document.getElementById('editPagamentoObservacao').value = data.observacao || '';
+                    document.getElementById('editPagamentoModal').classList.add('active');
+                })
+                .catch(() => mostrarMensagem('Erro ao carregar dados do pagamento', 'erro'));
+        }
+        
+        document.getElementById('editPagamentoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            fetch('/api/editar-pagamento/' + data.id, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    mostrarMensagem(result.message, 'sucesso');
+                    fecharModal('editPagamentoModal');
+                    carregarPagamentos();
+                } else {
+                    mostrarMensagem(result.message || 'Erro ao editar pagamento', 'erro');
+                }
+            })
+            .catch(() => mostrarMensagem('Erro ao editar pagamento', 'erro'));
+        });
+        
+        // ============================================================
+        // EDIÇÃO - MANUTENÇÃO
+        // ============================================================
+        
+        function abrirEditarManutencao(id) {
+            fetch('/api/manutencao/' + id)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('editManutencaoId').value = data.id;
+                    document.getElementById('editManutencaoVeiculoId').value = data.veiculo_id;
+                    document.getElementById('editManutencaoData').value = data.data_manutencao;
+                    document.getElementById('editManutencaoDescricao').value = data.descricao;
+                    document.getElementById('editManutencaoPecas').value = data.pecas || '';
+                    document.getElementById('editManutencaoMaoObra').value = data.mao_obra || 0;
+                    document.getElementById('editManutencaoTotal').value = data.total;
+                    document.getElementById('editManutencaoModal').classList.add('active');
+                })
+                .catch(() => mostrarMensagem('Erro ao carregar dados da manutenção', 'erro'));
+        }
+        
+        document.getElementById('editManutencaoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            fetch('/api/editar-manutencao/' + data.id, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    mostrarMensagem(result.message, 'sucesso');
+                    fecharModal('editManutencaoModal');
                     carregarManutencoes();
                 } else {
                     mostrarMensagem(result.message || 'Erro ao editar manutenção', 'erro');
                 }
             })
-            .catch(error => {
-                console.error('Erro ao editar:', error);
-                mostrarMensagem('Erro ao editar manutenção: ' + error.message, 'erro');
-            });
+            .catch(() => mostrarMensagem('Erro ao editar manutenção', 'erro'));
         });
         
         // ============================================================
         // EXCLUIR FUNCTIONS
         // ============================================================
+        
         function excluirVeiculo(id) {
             if (!confirm('Tem certeza? Os pagamentos e manutenções deste veículo também serão excluídos.')) return;
             fetch('/api/excluir-veiculo/' + id, { method: 'DELETE' })
@@ -699,19 +861,32 @@
                 });
         }
         
+        // ============================================================
+        // EVENTOS GLOBAIS
+        // ============================================================
+        
         // Fechar modal com ESC
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') fecharModal();
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+            }
         });
         
         // Fechar modal clicando fora
-        document.getElementById('editModal').addEventListener('click', function(e) {
-            if (e.target === this) fecharModal();
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
         });
         
         // ============================================================
         // INICIALIZAR
         // ============================================================
+        
         window.onload = function() {
             carregarVeiculos();
             carregarPagamentos();
