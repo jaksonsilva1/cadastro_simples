@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Veículos e Pagamentos</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 { text-align: center; color: #333; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 30px; }
+        
+        .admin-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .admin-actions a {
+            padding: 12px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+        .admin-actions .btn-consulta {
+            background: #48bb78;
+            color: white;
+        }
+        .admin-actions .btn-consulta:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        .tab-btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        .tab-btn:hover { transform: translateY(-2px); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .form-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .form-group-full { grid-column: 1 / -1; }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 14px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a67d8; transform: translateY(-2px); }
+        .btn-success { background: #48bb78; color: white; }
+        .btn-success:hover { background: #38a169; transform: translateY(-2px); }
+        .btn-danger { background: #fc8181; color: white; }
+        .btn-danger:hover { background: #f56565; }
+        .btn-warning { background: #ed8936; color: white; }
+        .btn-warning:hover { background: #dd6b20; }
+        .btn-sm { padding: 5px 12px; font-size: 12px; }
+        .btn-block { width: 100%; }
+        
+        .mensagem {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .mensagem.sucesso { background: #c6f6d5; color: #22543d; display: block; }
+        .mensagem.erro { background: #fed7d7; color: #9b2c2c; display: block; }
+        
+        .card {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        .card h3 { color: #2d3748; margin-bottom: 10px; }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .card-item { display: flex; flex-direction: column; }
+        .card-item .label { font-size: 12px; color: #718096; font-weight: 600; }
+        .card-item .value { font-size: 16px; color: #2d3748; font-weight: 500; }
+        
+        .lista-header {
+            display: grid;
+            grid-template-columns: 2fr 2fr 1.5fr 1fr 1fr 0.8fr;
+            gap: 10px;
+            padding: 10px 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+        .item {
+            display: grid;
+            grid-template-columns: 2fr 2fr 1.5fr 1fr 1fr 0.8fr;
+            gap: 10px;
+            align-items: center;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: background 0.2s;
+        }
+        .item:hover { background: #edf2f7; }
+        .item .placa { font-weight: bold; color: #667eea; text-transform: uppercase; }
+        .item .valor { font-weight: bold; color: #48bb78; }
+        .item .acoes { display: flex; gap: 5px; flex-wrap: wrap; }
+        
+        .vazio { text-align: center; color: #a0aec0; padding: 40px; }
+        .total { text-align: center; color: #718096; margin-top: 15px; font-size: 14px; }
+        .badge {
+            background: #e2e8f0;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: #4a5568;
+        }
+        .soma-total {
+            background: #edf2f7;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2d3748;
+            margin-top: 15px;
+        }
+        .soma-total span { color: #48bb78; font-size: 24px; }
+        
+        @media (max-width: 768px) {
+            .form-group { grid-template-columns: 1fr; }
+            .lista-header { display: none; }
+            .item { grid-template-columns: 1fr; gap: 5px; padding: 15px; }
+            .tabs { flex-direction: column; }
+            .admin-actions { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚗💰 Controle de Veículos</h1>
+        <p class="subtitle">Gerencie seus veículos e registre os pagamentos</p>
+        
+        <div class="admin-actions">
+            <a href="/consulta" class="btn-consulta">🔍 Consulta Pública de Veículos</a>
+        </div>
+        
+        <div id="mensagem" class="mensagem"></div>
+        
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="abrirTab('veiculos')">🚗 Veículos</button>
+            <button class="tab-btn" onclick="abrirTab('pagamentos')">💰 Pagamentos</button>
+        </div>
+        
+        <!-- ===== TAB VEÍCULOS ===== -->
+        <div id="tab-veiculos" class="tab-content active">
+            <h2>📋 Cadastrar Veículo</h2>
+            <form action="/cadastrar-veiculo" method="POST">
+                <div class="form-group">
+                    <div>
+                        <label>Modelo *</label>
+                        <input type="text" name="modelo" placeholder="Ex: Civic" required>
+                    </div>
+                    <div>
+                        <label>Marca *</label>
+                        <input type="text" name="marca" placeholder="Ex: Honda" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label>Ano *</label>
+                        <input type="number" name="ano" placeholder="2020" required min="1900" max="2100">
+                    </div>
+                    <div>
+                        <label>Placa *</label>
+                        <input type="text" name="placa" placeholder="ABC-1234" required style="text-transform: uppercase;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-group-full">
+                        <label>Cor</label>
+                        <input type="text" name="cor" placeholder="Ex: Prata">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Cadastrar Veículo</button>
+            </form>
+            
+            <hr style="margin: 30px 0; border: none; border-top: 2px solid #e2e8f0;">
+            
+            <h2>📋 Lista de Veículos</h2>
+            <div id="listaVeiculos"></div>
+        </div>
+        
+        <!-- ===== TAB PAGAMENTOS ===== -->
+        <div id="tab-pagamentos" class="tab-content">
+            <h2>💰 Registrar Pagamento</h2>
+            <form action="/cadastrar-pagamento" method="POST">
+                <div class="form-group">
+                    <div>
+                        <label>Veículo *</label>
+                        <select name="veiculo_id" id="selectVeiculo" required>
+                            <option value="">Selecione um veículo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Data do Pagamento *</label>
+                        <input type="date" name="data_pagamento" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label>Descrição *</label>
+                        <input type="text" name="descricao" placeholder="Ex: IPVA, Multa, Manutenção..." required>
+                    </div>
+                    <div>
+                        <label>Valor (R$) *</label>
+                        <input type="number" name="valor" placeholder="0,00" step="0.01" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div>
+                        <label>Forma de Pagamento</label>
+                        <input type="text" name="forma_pagamento" placeholder="Ex: Cartão, Dinheiro, Pix...">
+                    </div>
+                    <div>
+                        <label>Observação</label>
+                        <input type="text" name="observacao" placeholder="Observações adicionais...">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success btn-block">Registrar Pagamento</button>
+            </form>
+            
+            <hr style="margin: 30px 0; border: none; border-top: 2px solid #e2e8f0;">
+            
+            <h2>📋 Histórico de Pagamentos</h2>
+            <div id="listaPagamentos"></div>
+        </div>
+    </div>
+    
+    <script>
+        function abrirTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            event.target.classList.add('active');
+            if (tab === 'pagamentos') carregarPagamentos();
+            else carregarVeiculos();
+        }
+        
+        function mostrarMensagem(texto, tipo) {
+            const msg = document.getElementById('mensagem');
+            msg.textContent = texto;
+            msg.className = 'mensagem ' + tipo;
+            setTimeout(() => { msg.className = 'mensagem'; }, 5000);
+        }
+        
+        function carregarVeiculos() {
+            fetch('/api/veiculos')
+                .then(r => r.json())
+                .then(data => {
+                    const lista = document.getElementById('listaVeiculos');
+                    if (data.length === 0) {
+                        lista.innerHTML = '<div class="vazio">Nenhum veículo cadastrado</div>';
+                    } else {
+                        let html = '<div class="lista-header"><span>Modelo</span><span>Marca</span><span>Ano</span><span>Placa</span><span>Cor</span><span>Ações</span></div>';
+                        data.forEach(v => {
+                            html += '<div class="item">';
+                            html += '  <span>' + v.modelo + '</span>';
+                            html += '  <span>' + v.marca + '</span>';
+                            html += '  <span>' + v.ano + '</span>';
+                            html += '  <span class="placa">' + v.placa + '</span>';
+                            html += '  <span>' + (v.cor || '-') + '</span>';
+                            html += '  <div class="acoes">';
+                            html += '    <button class="btn btn-danger btn-sm" onclick="excluirVeiculo(' + v.id + ')">🗑️</button>';
+                            html += '  </div>';
+                            html += '</div>';
+                        });
+                        lista.innerHTML = html;
+                    }
+                    
+                    const select = document.getElementById('selectVeiculo');
+                    const valorAtual = select.value;
+                    select.innerHTML = '<option value="">Selecione um veículo</option>';
+                    data.forEach(v => {
+                        select.innerHTML += '<option value="' + v.id + '">' + v.placa + ' - ' + v.modelo + ' (' + v.marca + ')</option>';
+                    });
+                    if (valorAtual) select.value = valorAtual;
+                })
+                .catch(() => mostrarMensagem('Erro ao carregar veículos', 'erro'));
+        }
+        
+        function carregarPagamentos() {
+            fetch('/api/pagamentos')
+                .then(r => r.json())
+                .then(data => {
+                    const lista = document.getElementById('listaPagamentos');
+                    if (data.length === 0) {
+                        lista.innerHTML = '<div class="vazio">Nenhum pagamento registrado</div>';
+                        return;
+                    }
+                    
+                    let html = '<div class="lista-header"><span>Veículo</span><span>Descrição</span><span>Valor</span><span>Data</span><span>Forma</span><span>Ações</span></div>';
+                    let totalGeral = 0;
+                    data.forEach(p => {
+                        totalGeral += p.valor;
+                        html += '<div class="item">';
+                        html += '  <span class="placa">' + p.placa + '</span>';
+                        html += '  <span>' + p.descricao + '</span>';
+                        html += '  <span class="valor">R$ ' + p.valor.toFixed(2).replace('.', ',') + '</span>';
+                        html += '  <span>' + formatarData(p.data_pagamento) + '</span>';
+                        html += '  <span>' + (p.forma_pagamento || '-') + '</span>';
+                        html += '  <div class="acoes">';
+                        html += '    <button class="btn btn-danger btn-sm" onclick="excluirPagamento(' + p.id + ')">🗑️</button>';
+                        html += '  </div>';
+                        html += '</div>';
+                    });
+                    html += '<div class="soma-total">💰 Total Geral: <span>R$ ' + totalGeral.toFixed(2).replace('.', ',') + '</span></div>';
+                    lista.innerHTML = html;
+                })
+                .catch(() => mostrarMensagem('Erro ao carregar pagamentos', 'erro'));
+        }
+        
+        function formatarData(data) {
+            if (!data) return '';
+            const d = new Date(data + 'T00:00:00');
+            return d.toLocaleDateString('pt-BR');
+        }
+        
+        function excluirVeiculo(id) {
+            if (!confirm('Tem certeza? Os pagamentos deste veículo também serão excluídos.')) return;
+            fetch('/api/excluir-veiculo/' + id, { method: 'DELETE' })
+                .then(r => r.json())
+                .then(data => {
+                    mostrarMensagem(data.message, data.success ? 'sucesso' : 'erro');
+                    carregarVeiculos();
+                });
+        }
+        
+        function excluirPagamento(id) {
+            if (!confirm('Tem certeza que deseja excluir este pagamento?')) return;
+            fetch('/api/excluir-pagamento/' + id, { method: 'DELETE' })
+                .then(r => r.json())
+                .then(data => {
+                    mostrarMensagem(data.message, data.success ? 'sucesso' : 'erro');
+                    carregarPagamentos();
+                });
+        }
+        
+        window.onload = function() {
+            carregarVeiculos();
+            carregarPagamentos();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const msg = urlParams.get('msg');
+            if (msg) {
+                const tipos = {
+                    'ok': ['✅ Operação realizada com sucesso!', 'sucesso'],
+                    'erro': ['❌ Erro ao realizar operação.', 'erro'],
+                    'duplicado': ['❌ Placa já cadastrada!', 'erro']
+                };
+                if (tipos[msg]) {
+                    mostrarMensagem(tipos[msg][0], tipos[msg][1]);
+                }
+                window.history.replaceState({}, document.title, '/');
+            }
+        };
+    </script>
+</body>
+</html>

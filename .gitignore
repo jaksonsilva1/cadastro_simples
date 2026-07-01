@@ -1,0 +1,129 @@
+# ========================================
+# DEPENDÊNCIAS
+# ========================================
+node_modules/
+package-lock.json
+yarn.lock
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ========================================
+# BANCO DE DADOS
+# ========================================
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+instance/
+database/
+
+# ========================================
+# ARQUIVOS DE AMBIENTE
+# ========================================
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+.env.test
+
+# ========================================
+# ARQUIVOS DE CONFIGURAÇÃO DO SO
+# ========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+*.tmp
+*.temp
+
+# ========================================
+# EDITORES E IDEs
+# ========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-workspace
+*.sublime-project
+.vscode/
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+*.code-workspace
+
+# ========================================
+# ARQUIVOS DE BACKUP
+# ========================================
+*.bak
+*.old
+*.orig
+*.backup
+*.save
+*.sav
+
+# ========================================
+# ARQUIVOS DE BUILD E DISTRIBUIÇÃO
+# ========================================
+dist/
+build/
+out/
+*.min.js
+*.min.css
+*.map
+
+# ========================================
+# ARQUIVOS DE LOG
+# ========================================
+logs/
+*.log
+access.log
+error.log
+combined.log
+
+# ========================================
+# ARQUIVOS TEMPORÁRIOS
+# ========================================
+tmp/
+temp/
+*.tmp
+*.temp
+*.cache
+*.pid
+*.seed
+
+# ========================================
+# ARQUIVOS DE TESTES
+# ========================================
+coverage/
+.nyc_output/
+test-reports/
+
+# ========================================
+# OUTROS
+# ========================================
+*.zip
+*.rar
+*.7z
+*.tar.gz
+*.tgz
+*.pkg
+*.dmg
+*.exe
+*.msi
+
+# ========================================
+# ARQUIVOS DO PROJETO
+# ========================================
+# Mantenha apenas os arquivos importantes no Git
+# O banco de dados é gerado automaticamente na primeira execução
