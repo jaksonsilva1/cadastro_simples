@@ -43,10 +43,18 @@ function parseDate(dateStr) {
 /** Calcula quantos dias um débito está atrasado */
 function calculateOverdueDays(dueDateStr) {
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const dueDate = parseDate(dueDateStr);
+    dueDate.setHours(0, 0, 0, 0);
+    
+    // Se a data de vencimento é hoje ou futuro, não está atrasado
     if (dueDate >= today) return 0;
+    
+    // Calcula a diferença em dias
     const diffTime = today - dueDate;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    // Limita ao máximo de dias configurado
     return Math.min(diffDays, MAX_FEE_DAYS);
 }
 
@@ -364,19 +372,57 @@ function renderOverview() {
 }
 
 /** Renderiza a página de débitos - COM BOTÃO PIX APENAS ÍCONE */
+/** Renderiza a página de débitos - APENAS DÉBITOS COM VENCIMENTO EM ATÉ 3 DIAS */
 function renderDebts() {
     const v = currentVehicle;
     const container = document.getElementById('debtsContainer');
 
-    const pagamentos = (v.pagamentos || []).filter(p => p.forma_pagamento !== 'Pago');
+    // Filtra apenas débitos não pagos
+    const todosPagamentos = (v.pagamentos || []).filter(p => p.forma_pagamento !== 'Pago');
 
-    if (pagamentos.length === 0) {
+    if (todosPagamentos.length === 0) {
         container.innerHTML =
             `<div class="empty-state"><span class="emoji">🎉</span>Nenhum débito pendente!<br><span style="font-size:12px;color:#94a3b8;">Seu veículo está em dia.</span></div>`;
         return;
     }
 
+    // ============================================================
+    // FILTRO: APENAS DÉBITOS COM VENCIMENTO EM ATÉ 3 DIAS
+    // ============================================================
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    
+    const pagamentos = todosPagamentos.filter(debt => {
+        const dueDateBR = formatDateToBR(debt.data_pagamento);
+        const dueDate = parseDate(dueDateBR);
+        dueDate.setHours(0, 0, 0, 0);
+        
+        const diffTime = dueDate - hoje;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        return diffDays <= 3;
+    });
+
+    if (pagamentos.length === 0) {
+        container.innerHTML =
+            `<div class="empty-state"><span class="emoji">✅</span>Nenhum débito com vencimento nos próximos 3 dias!<br><span style="font-size:12px;color:#94a3b8;">Todos os débitos vencem em mais de 3 dias.</span></div>`;
+        return;
+    }
+
+    // ============================================================
+    // ORDENAR POR DATA DE VENCIMENTO (mais antigo primeiro)
+    // ============================================================
+    pagamentos.sort((a, b) => {
+        const dataA = new Date(a.data_pagamento + 'T00:00:00');
+        const dataB = new Date(b.data_pagamento + 'T00:00:00');
+        return dataA - dataB;
+    });
+
     let html = `
+        <div style="background: #1a2340; padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <span style="color: #7a8a9f; font-size: 13px;">📌 Mostrando débitos com vencimento em até <strong style="color: #dce4f0;">3 dias</strong></span>
+            <span style="color: #7a8a9f; font-size: 12px;">${pagamentos.length} débito(s) encontrado(s)</span>
+        </div>
         <table class="debt-table">
             <thead>
                 <tr>
@@ -407,11 +453,30 @@ function renderDebts() {
             }
         }
 
+        // ============================================================
+        // CÁLCULO DOS DIAS (APENAS PARA ATRASADOS)
+        // ============================================================
+        const dueDateBR = formatDateToBR(debt.data_pagamento);
+        const dueDate = parseDate(dueDateBR);
+        dueDate.setHours(0, 0, 0, 0);
+        const diffTime = dueDate - hoje;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        let diasTexto = '';
+        if (debt.forma_pagamento === 'Atrasado') {
+            const daysOverdue = Math.abs(diffDays);
+            diasTexto = ` <span style="font-size:10px; color:#e88a8a; font-weight:600;">(${daysOverdue}d)</span>`;
+        }
+        // PENDENTES: NÃO EXIBE NADA
+
         html += `
             <tr>
                 <td class="col-due"><strong>${formatDateToBR(debt.data_pagamento)}</strong></td>
                 <td class="col-desc">${debt.descricao}</td>
-                <td class="col-status"><span class="badge ${statusBadge}">${statusLabel}</span></td>
+                <td class="col-status">
+                    <span class="badge ${statusBadge}">${statusLabel}</span>
+                    ${diasTexto}
+                </td>
                 <td class="col-value">${originalDisplay}<strong>${formatCurrency(displayAmount)}</strong>${feeDisplay}</td>
                 <td class="col-action">
                     <button class="btn-pix" onclick='openPixModal(${JSON.stringify(debt)}, "${currentPlate}")'>

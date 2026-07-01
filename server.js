@@ -139,6 +139,100 @@ db.get('SELECT COUNT(*) as count FROM veiculos', (err, row) => {
     }
 });
 
+// ============================================================
+// FUNÇÃO PARA CORRIGIR STATUS DOS PAGAMENTOS (COMPLETA)
+// ============================================================
+// Corrige em ambos os sentidos:
+// 1. Pendente com data passada -> Atrasado
+// 2. Atrasado com data hoje ou futura -> Pendente
+
+function corrigirStatusPagamentos(veiculoId = null, callback) {
+    // 1. Corrigir Pendente -> Atrasado (datas passadas)
+    let sql1 = `
+        UPDATE pagamentos 
+        SET forma_pagamento = 'Atrasado'
+        WHERE forma_pagamento = 'Pendente' 
+        AND data_pagamento < date('now')
+    `;
+    
+    // 2. Corrigir Atrasado -> Pendente (datas >= hoje)
+    let sql2 = `
+        UPDATE pagamentos 
+        SET forma_pagamento = 'Pendente'
+        WHERE forma_pagamento = 'Atrasado' 
+        AND data_pagamento >= date('now')
+    `;
+    
+    let params = [];
+    
+    if (veiculoId) {
+        sql1 += ' AND veiculo_id = ?';
+        sql2 += ' AND veiculo_id = ?';
+        params.push(veiculoId, veiculoId);
+    }
+    
+    // Executar primeira correção (Pendente -> Atrasado)
+    db.run(sql1, veiculoId ? [veiculoId] : [], function(err) {
+        if (err) {
+            console.error('❌ Erro ao corrigir Pendente->Atrasado:', err);
+            if (callback) callback(err);
+            return;
+        }
+        const corrigidos1 = this.changes;
+        
+        // Executar segunda correção (Atrasado -> Pendente)
+        db.run(sql2, veiculoId ? [veiculoId] : [], function(err) {
+            if (err) {
+                console.error('❌ Erro ao corrigir Atrasado->Pendente:', err);
+                if (callback) callback(err);
+                return;
+            }
+            const corrigidos2 = this.changes;
+            
+            const total = corrigidos1 + corrigidos2;
+            if (total > 0) {
+                console.log(`✅ ${corrigidos1} pagamentos corrigidos para Atrasado`);
+                console.log(`✅ ${corrigidos2} pagamentos corrigidos para Pendente`);
+                console.log(`✅ Total: ${total} pagamentos corrigidos`);
+            }
+            
+            if (callback) callback(null, total);
+        });
+    });
+}
+
+// ============================================================
+// MIDDLEWARE - CORREÇÃO AUTOMÁTICA
+// ============================================================
+
+app.use((req, res, next) => {
+    if (req.path.includes('/api/') || req.path.includes('/consulta')) {
+        corrigirStatusPagamentos(null, function() {
+            next();
+        });
+    } else {
+        next();
+    }
+});
+
+// ============================================================
+// TIMER - CORREÇÃO AUTOMÁTICA A CADA 1 HORA
+// ============================================================
+
+// Corrigir ao iniciar o servidor
+corrigirStatusPagamentos(null, function(err, changes) {
+    console.log(`🔄 Correção inicial: ${changes} pagamentos corrigidos`);
+});
+
+// Corrigir a cada 1 hora (3600000 ms)
+setInterval(() => {
+    corrigirStatusPagamentos(null, function(err, changes) {
+        if (changes > 0) {
+            console.log(`🔄 Correção automática: ${changes} pagamentos corrigidos`);
+        }
+    });
+}, 3600000);
+
 // ========== ROTAS ==========
 
 // Rota para o painel administrativo
@@ -256,13 +350,23 @@ app.get('/api/pagamentos', (req, res) => {
     db.all(`
         SELECT p.*, v.placa, v.modelo, v.marca 
         FROM pagamentos p
-        JOIN veiculos v ON p.veiculo_id = v.id
+        LEFT JOIN veiculos v ON p.veiculo_id = v.id
         ORDER BY p.data_pagamento DESC
     `, (err, rows) => {
         if (err) {
             console.error('Erro ao listar pagamentos:', err);
             return res.status(500).json({ error: err.message });
         }
+        
+        // Adiciona um indicador se o veículo foi deletado
+        rows.forEach(row => {
+            if (!row.placa) {
+                row.veiculo_deletado = true;
+                row.placa = '🚫 Veículo Deletado';
+                row.modelo = 'ID: ' + row.veiculo_id;
+            }
+        });
+        
         res.json(rows);
     });
 });
@@ -372,17 +476,17 @@ app.delete('/api/excluir-manutencao/:id', (req, res) => {
 });
 
 // ============================================================
-// INICIAR SERVIDOR
-// ============================================================
-
-
-// ============================================================
 // ROTAS - MANUTENÇÕES (EDIÇÃO)
 // ============================================================
 
 // API: Buscar uma manutenção específica
 app.get('/api/manutencao/:id', (req, res) => {
     const id = req.params.id;
+    
+    if (!id || isNaN(id)) {
+        return res.status(400).json({ error: 'ID inválido' });
+    }
+    
     db.get('SELECT * FROM manutencoes WHERE id = ?', [id], (err, row) => {
         if (err) {
             console.error('Erro ao buscar manutenção:', err);
@@ -565,6 +669,32 @@ app.put('/api/editar-pagamento/:id', (req, res) => {
         res.json({ success: true, message: 'Pagamento atualizado com sucesso!' });
     });
 });
+
+// ============================================================
+// ROTA PARA CORRIGIR MANUALMENTE
+// ============================================================
+
+app.post('/api/corrigir-pagamentos', (req, res) => {
+    corrigirStatusPagamentos(null, function(err, changes) {
+        if (err) {
+            return res.status(500).json({ 
+                success: false, 
+                message: 'Erro ao corrigir pagamentos' 
+            });
+        }
+        
+        res.json({ 
+            success: true, 
+            message: `${changes} pagamentos corrigidos`,
+            total_corrigidos: changes
+        });
+    });
+});
+
+// ============================================================
+// INICIAR SERVIDOR
+// ============================================================
+
 app.listen(PORT, () => {
     console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
     console.log(`🔍 Página de consulta: http://localhost:${PORT}/consulta`);
