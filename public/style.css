@@ -789,10 +789,14 @@ h1 span {
     min-width: 100%;
 }
 
-.debt-info-item .value.description {
-    font-weight: 500;      /* Peso da fonte médio */
-    color: #b8c5d6;        /* Cor cinza claro */
-    font-size: 15px;       /* Tamanho da fonte */
+/* ✅ USAR - DESCRIÇÃO NO CABEÇALHO */
+.debt-description-header {
+    font-size: 13px;          /* Tamanho ajustado */
+    font-weight: 600;         /* Peso da fonte */
+    color: #dce4f0;           /* Cor branca suave */
+    text-align: right;
+    flex: 1;
+    word-break: break-word;
 }
 
 .debts-grid {
