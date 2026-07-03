@@ -373,6 +373,8 @@ function renderOverview() {
 
 /** Renderiza a página de débitos - COM BOTÃO PIX APENAS ÍCONE */
 /** Renderiza a página de débitos - APENAS DÉBITOS COM VENCIMENTO EM ATÉ 3 DIAS */
+/** Renderiza a página de débitos - VERSÃO CARDS COM DESCRIÇÃO */
+/** Renderiza a página de débitos - VERSÃO CARDS */
 function renderDebts() {
     const v = currentVehicle;
     const container = document.getElementById('debtsContainer');
@@ -386,9 +388,7 @@ function renderDebts() {
         return;
     }
 
-    // ============================================================
-    // FILTRO: APENAS DÉBITOS COM VENCIMENTO EM ATÉ 3 DIAS
-    // ============================================================
+    // Filtro: apenas débitos com vencimento em até 3 dias
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
     
@@ -396,10 +396,7 @@ function renderDebts() {
         const dueDateBR = formatDateToBR(debt.data_pagamento);
         const dueDate = parseDate(dueDateBR);
         dueDate.setHours(0, 0, 0, 0);
-        
-        const diffTime = dueDate - hoje;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
+        const diffDays = Math.ceil((dueDate - hoje) / (1000 * 60 * 60 * 24));
         return diffDays <= 3;
     });
 
@@ -409,85 +406,88 @@ function renderDebts() {
         return;
     }
 
-    // ============================================================
-    // ORDENAR POR DATA DE VENCIMENTO (mais antigo primeiro)
-    // ============================================================
+    // Ordenar por data
     pagamentos.sort((a, b) => {
         const dataA = new Date(a.data_pagamento + 'T00:00:00');
         const dataB = new Date(b.data_pagamento + 'T00:00:00');
         return dataA - dataB;
     });
 
-    let html = `
-        <div style="background: #1a2340; padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-            <span style="color: #7a8a9f; font-size: 13px;">📌 Mostrando débitos com vencimento em até <strong style="color: #dce4f0;">3 dias</strong></span>
-            <span style="color: #7a8a9f; font-size: 12px;">${pagamentos.length} débito(s) encontrado(s)</span>
-        </div>
-        <table class="debt-table">
-            <thead>
-                <tr>
-                    <th class="col-due">📅 Venc.</th>
-                    <th class="col-desc">Descrição</th>
-                    <th class="col-status">Status</th>
-                    <th class="col-value">Valor</th>
-                    <th class="col-action">Pagar</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
+    let html = `<div class="debts-grid">`;
+    
+    pagamentos.forEach((debt, index) => {
+        let displayAmount = debt.valor;
+        let originalDisplay = '';
+        let isOverdue = debt.forma_pagamento === 'Atrasado';
+        let statusLabel = isOverdue ? 'Atrasado' : 'Pendente';
+        let statusClass = isOverdue ? 'overdue' : 'pending';
 
-    pagamentos.forEach(debt => {
-        let displayAmount = debt.valor,
-            originalDisplay = '',
-            feeDisplay = '';
-        const statusLabel = debt.forma_pagamento === 'Atrasado' ? 'Atrasado' : 'Pendente';
-        const statusBadge = debt.forma_pagamento === 'Atrasado' ? 'badge-overdue' : 'badge-pending';
-
-        if (debt.forma_pagamento === 'Atrasado') {
+        if (isOverdue) {
             const dueDateBR = formatDateToBR(debt.data_pagamento);
             const feeInfo = getFeeDetail(debt.valor, dueDateBR, debt.forma_pagamento);
             if (feeInfo && feeInfo.fee > 0) {
-                originalDisplay = `<span class="original-amount">${formatCurrency(debt.valor)}</span>`;
-                feeDisplay = `<span class="fee-info">+ ${formatCurrency(feeInfo.fee)}</span>`;
+                originalDisplay = debt.valor;
                 displayAmount = feeInfo.total;
             }
         }
 
-        // ============================================================
-        // CÁLCULO DOS DIAS (APENAS PARA ATRASADOS)
-        // ============================================================
-        const dueDateBR = formatDateToBR(debt.data_pagamento);
-        const dueDate = parseDate(dueDateBR);
-        dueDate.setHours(0, 0, 0, 0);
-        const diffTime = dueDate - hoje;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        let diasTexto = '';
-        if (debt.forma_pagamento === 'Atrasado') {
-            const daysOverdue = Math.abs(diffDays);
-            diasTexto = ` <span style="font-size:10px; color:#e88a8a; font-weight:600;">(${daysOverdue}d)</span>`;
+        // Dias de atraso
+        let daysOverdue = 0;
+        if (isOverdue) {
+            const dueDateBR = formatDateToBR(debt.data_pagamento);
+            const dueDate = parseDate(dueDateBR);
+            dueDate.setHours(0, 0, 0, 0);
+            const diffTime = hoje - dueDate;
+            daysOverdue = Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
         }
-        // PENDENTES: NÃO EXIBE NADA
+
+        const debtId = 1000 + index;
 
         html += `
-            <tr>
-                <td class="col-due"><strong>${formatDateToBR(debt.data_pagamento)}</strong></td>
-                <td class="col-desc">${debt.descricao}</td>
-                <td class="col-status">
-                    <span class="badge ${statusBadge}">${statusLabel}</span>
-                    ${diasTexto}
-                </td>
-                <td class="col-value">${originalDisplay}<strong>${formatCurrency(displayAmount)}</strong>${feeDisplay}</td>
-                <td class="col-action">
-                    <button class="btn-pix" onclick='openPixModal(${JSON.stringify(debt)}, "${currentPlate}")'>
-                        <img src="https://img.icons8.com/?size=100&id=Dk4sj0EM4b20&format=png&color=000000" class="pix-icon-img" alt="PIX">
+            <div class="debt-card">
+                <!-- CABEÇALHO: ID + DESCRIÇÃO (NO LUGAR DA PLACA) -->
+                <div class="debt-card-header">
+                    <span class="debt-id">ID: <strong>${debtId}</strong></span>
+                    <span class="debt-description-header">${debt.descricao}</span>
+                </div>
+
+                <!-- CORPO: INFORMAÇÕES -->
+                <div class="debt-card-body">
+                    ${isOverdue ? `
+                    <div class="debt-info-item">
+                        <span class="label">Dias de atraso</span>
+                        <span class="value days-overdue"><strong>${daysOverdue}</strong> dia(s)</span>
+                    </div>
+                    ` : ''}
+                    <div class="debt-info-item">
+                        <span class="label">Vencimento</span>
+                        <span class="value due-date">${formatDateToBR(debt.data_pagamento)}</span>
+                    </div>
+                    <div class="debt-info-item">
+                        <span class="label">${isOverdue ? 'Valor Original' : 'Valor'}</span>
+                        <span class="value ${isOverdue ? 'amount-original' : 'amount-total'}">${isOverdue ? `R$ ${debt.valor.toFixed(2)}` : `<strong>R$ ${displayAmount.toFixed(2)}</strong>`}</span>
+                    </div>
+                    ${isOverdue ? `
+                    <div class="debt-info-item">
+                        <span class="label">Valor</span>
+                        <span class="value amount-total"><strong>R$ ${displayAmount.toFixed(2)}</strong></span>
+                    </div>
+                    ` : ''}
+                </div>
+
+                <!-- RODAPÉ: STATUS + BOTÃO PIX -->
+                <div class="debt-card-footer">
+                    <span class="debt-status-badge ${statusClass}">${statusLabel}</span>
+                    <button class="debt-pay-btn" onclick='openPixModal(${JSON.stringify(debt)}, "${currentPlate}")'>
+                        <img src="https://img.icons8.com/?size=100&id=Dk4sj0EM4b20&format=png&color=000000" class="pix-icon-small" alt="PIX">
+                        Pagar via Pix
                     </button>
-                </td>
-            </tr>
+                </div>
+            </div>
         `;
     });
 
-    html += `</tbody></table>`;
+    html += `</div>`;
     container.innerHTML = html;
 }
 

@@ -10,7 +10,7 @@
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #0a0e17;
+    background: #0a0e17; /* cor de fundo escura */
     min-height: 100vh;
     position: relative;
     touch-action: pan-y pinch-zoom;
@@ -174,6 +174,12 @@ body {
     align-items: center;
     gap: 12px;
     border: 1px solid #1a2340;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.sidebar-vehicle:active {
+    background: #1a2340;
 }
 
 .sidebar-vehicle-icon {
@@ -648,6 +654,16 @@ h1 span {
     color: #7a8a9f;
     font-size: 13px;
     font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.vehicle-model-right:hover {
+    color: #5a9cf0;
+}
+
+.vehicle-model-right:active {
+    transform: scale(0.97);
 }
 
 .plate-small {
@@ -765,13 +781,189 @@ h1 span {
 }
 
 /* ============================================================
-   TABELAS
+   DÉBITOS - ESTILO CARDS (COMO NA IMAGEM)
+   ============================================================ */
+   
+.debt-info-item.full-width {
+    width: 100%;           /* Ocupa toda largura do card */
+    min-width: 100%;
+}
+
+.debt-info-item .value.description {
+    font-weight: 500;      /* Peso da fonte médio */
+    color: #b8c5d6;        /* Cor cinza claro */
+    font-size: 15px;       /* Tamanho da fonte */
+}
+
+.debts-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;/* ajustar espaço entre os cards */
+}
+
+.debt-card {
+    background: #1b263d;
+    border-radius: 20px;
+    padding: 16px 18px;
+    border: 1px solid #4a5166;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: border-color 0.2s;
+}
+
+.debt-card:active {
+    transform: scale(0.99);
+}
+
+.debt-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.debt-id {
+    font-size: 13px;
+    color: #5a6a85;
+    font-weight: 500;
+}
+
+.debt-id strong {
+    color: #dce4f0;
+}
+
+.debt-plate {
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    font-size: 14px;
+    color: #dce4f0;
+    letter-spacing: 1.5px;
+    background: #0a0e17;
+    padding: 2px 12px;
+    border-radius: 20px;
+    border: 1px solid #1a2340;
+}
+
+.debt-card-body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+}
+
+.debt-info-item {
+    display: flex;
+    flex-direction: column;
+    min-width: 80px;
+}
+
+.debt-info-item .label {
+    font-size: 10px;
+    color: #5a6a85;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.debt-info-item .value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #dce4f0;
+}
+
+.debt-info-item .value.days-overdue {
+    color: #e88a8a;
+}
+
+.debt-info-item .value.days-overdue strong {
+    color: #f0a0a0;
+}
+
+.debt-info-item .value.due-date {
+    color: #dce4f0;
+}
+
+.debt-info-item .value.amount-original {
+    color: #5a6a85;
+    text-decoration: line-through;
+    font-weight: 400;
+    font-size: 12px;
+}
+
+.debt-info-item .value.amount-total {
+    color: #4ade80;/* Verde mais suave para destaque numero do valor no card*/
+}
+
+.debt-info-item .value.amount-total strong {
+    color: #47c274; /* Verde mais intenso para destaque numero do valor no card*/
+}
+
+.debt-info-item .value.amount-paid {
+    color: #6ac8a0;
+}
+
+.debt-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+    border-top: 1px solid #1a2340;
+}
+
+.debt-status-badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 14px;
+    border-radius: 20px;
+}
+
+.debt-status-badge.overdue {
+    color: #e88a8a;
+    background: #2a1010;
+}
+
+.debt-status-badge.pending {
+    color: #d4a84a;
+    background: #2a1a0a;
+}
+
+.debt-pay-btn {
+    background: linear-gradient(135deg, #3a9a8a, #4a8a9a);
+    border: none;
+    padding: 8px 18px;
+    border-radius: 40px;
+    color: #f0f4fa;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    touch-action: manipulation;
+    font-family: inherit;
+}
+
+.debt-pay-btn:active {
+    transform: scale(0.95);
+}
+
+.debt-pay-btn:hover {
+    opacity: 0.85;
+}
+
+.debt-pay-btn .pix-icon-small {
+    width: 16px;
+    height: 16px;
+    filter: brightness(0) invert(1);
+}
+
+/* ============================================================
+   TABELAS (HISTÓRICO E MANUTENÇÕES)
    ============================================================ */
 .table-container {
     overflow: visible;
     background: #111827;
     border-radius: 20px;
-    border: 1px solid #1a2340;
+    border: 1px solid #111827;
     width: 100%;
 }
 
@@ -805,24 +997,6 @@ tr:last-child td {
 
 tr:hover td {
     background: #0a0e17;
-}
-
-/* Larguras fixas para colunas - TABELA DE DÉBITOS */
-.debt-table .col-due {
-    width: 22% !important;
-}
-.debt-table .col-desc {
-    width: 26% !important;
-}
-.debt-table .col-status {
-    width: 14% !important;
-}
-.debt-table .col-value {
-    width: 24% !important;
-}
-.debt-table .col-action {
-    width: 14% !important;
-    text-align: center;
 }
 
 .history-table .col-date {
@@ -880,58 +1054,6 @@ tr:hover td {
 .badge-paid {
     background: #0e2a1a;
     color: #6ac8a0;
-}
-
-.badge-maintenance {
-    background: #1a1a3a;
-    color: #8a8af0;
-}
-
-.btn-pix {
-    background: linear-gradient(135deg, #3a9a8a, #4a8a9a);
-    border: none;
-    padding: 8px 10px;
-    border-radius: 40px;
-    color: #f0f4fa;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-    font-family: inherit;
-    min-width: 36px;
-    min-height: 36px;
-}
-
-.btn-pix:active {
-    transform: scale(0.92);
-}
-
-.btn-pix:hover {
-    opacity: 0.85;
-}
-
-.pix-icon-img {
-    width: 22px;
-    height: 22px;
-    filter: brightness(0) invert(1);
-    display: block;
-}
-
-.fee-info {
-    font-size: 9px;
-    color: #e88a8a;
-    margin-top: 2px;
-    display: block;
-}
-
-.original-amount {
-    text-decoration: line-through;
-    font-size: 10px;
-    color: #5a6a85;
-    margin-right: 4px;
 }
 
 .empty-state {
@@ -1253,18 +1375,6 @@ tr:hover td {
         font-size: 12px;
     }
 
-    .btn-pix {
-        padding: 6px 8px;
-        min-width: 32px;
-        min-height: 32px;
-        border-radius: 30px;
-    }
-
-    .pix-icon-img {
-        width: 18px;
-        height: 18px;
-    }
-
     .page {
         padding: 12px 8px;
     }
@@ -1305,20 +1415,30 @@ tr:hover td {
         display: none;
     }
 
-    .debt-table .col-due {
-        width: 20% !important;
+    .debt-card {
+        padding: 14px 14px;
     }
-    .debt-table .col-desc {
-        width: 24% !important;
+
+    .debt-card-body {
+        gap: 6px 14px;
     }
-    .debt-table .col-status {
-        width: 14% !important;
+
+    .debt-info-item {
+        min-width: 60px;
     }
-    .debt-table .col-value {
-        width: 26% !important;
+
+    .debt-info-item .value {
+        font-size: 13px;
     }
-    .debt-table .col-action {
-        width: 16% !important;
+
+    .debt-card-footer {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .debt-pay-btn {
+        padding: 6px 14px;
+        font-size: 12px;
     }
 
     .history-table .col-date {
@@ -1362,10 +1482,6 @@ tr:hover td {
     .badge {
         font-size: 9px;
         padding: 2px 8px;
-    }
-
-    .original-amount {
-        font-size: 9px;
     }
 
     .table-container {
@@ -1451,20 +1567,45 @@ tr:hover td {
         margin-bottom: 8px;
     }
 
-    .debt-table .col-due {
-        width: 20% !important;
+    .debt-card {
+        padding: 12px 12px;
+        border-radius: 16px;
     }
-    .debt-table .col-desc {
-        width: 22% !important;
+
+    .debt-card-body {
+        gap: 4px 10px;
     }
-    .debt-table .col-status {
-        width: 13% !important;
+
+    .debt-info-item {
+        min-width: 50px;
     }
-    .debt-table .col-value {
-        width: 27% !important;
+
+    .debt-info-item .value {
+        font-size: 12px;
     }
-    .debt-table .col-action {
-        width: 18% !important;
+
+    .debt-id {
+        font-size: 11px;
+    }
+
+    .debt-plate {
+        font-size: 12px;
+        padding: 1px 10px;
+    }
+
+    .debt-status-badge {
+        font-size: 10px;
+        padding: 3px 10px;
+    }
+
+    .debt-pay-btn {
+        padding: 5px 12px;
+        font-size: 11px;
+    }
+
+    .debt-pay-btn .pix-icon-small {
+        width: 14px;
+        height: 14px;
     }
 
     .history-table .col-date {
@@ -1505,18 +1646,6 @@ tr:hover td {
         font-size: 10px;
     }
 
-    .btn-pix {
-        padding: 4px 5px;
-        min-width: 26px;
-        min-height: 26px;
-        border-radius: 24px;
-    }
-
-    .pix-icon-img {
-        width: 15px;
-        height: 15px;
-    }
-
     .badge {
         font-size: 8px;
         padding: 2px 6px;
@@ -1554,31 +1683,7 @@ tr:hover td {
 @media (max-width: 768px) {
     input,
     button,
-    .btn-pix,
     .chip {
         font-size: 16px;
     }
 }
-/* ============================================================
-   CLIQUE NO VEÍCULO - ABRE DÉBITOS
-   ============================================================ */
-
-.vehicle-model-right {
-    cursor: pointer;
-    transition: color 0.2s ease, transform 0.2s ease;
-}
-
-.vehicle-model-right:hover {
-    color: #5a9cf0;
-}
-
-.vehicle-model-right:active {
-    transform: scale(0.97);
-}
-
-@media (max-width: 768px) {
-    .vehicle-model-right:active {
-        color: #5a9cf0;
-        opacity: 0.7;
-    }
-}  
