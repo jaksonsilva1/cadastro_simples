@@ -2056,3 +2056,50 @@ tr:hover td {
         font-size: 14px;
     }
 }
+
+/* ============================================================
+   RESUMO SIMPLES DE DÉBITOS
+   ============================================================ */
+.debts-summary-simple {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    padding: 0 4px;
+}
+
+.summary-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    background: #111827;
+    border: 1px solid #1a2340;
+    color: #b8c5d6;
+}
+
+.summary-badge.overdue {
+    border-color: #4a1a1a;
+    color: #e88a8a;
+    background: #1a0a0a;
+}
+
+.summary-badge.pending {
+    border-color: #4a3a1a;
+    color: #d4a84a;
+    background: #1a140a;
+}
+
+/* Responsivo */
+@media (max-width: 480px) {
+    .debts-summary-simple {
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+    
+    .summary-badge {
+        font-size: 11px;
+        padding: 4px 12px;
+    }
+}

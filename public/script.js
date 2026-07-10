@@ -375,6 +375,12 @@ function renderOverview() {
 /** Renderiza a página de débitos - APENAS DÉBITOS COM VENCIMENTO EM ATÉ 3 DIAS */
 /** Renderiza a página de débitos - VERSÃO CARDS COM DESCRIÇÃO */
 /** Renderiza a página de débitos - VERSÃO CARDS */
+/** Renderiza a página de débitos - COM RESUMO DE ATRASADOS */
+/** Renderiza a página de débitos - COM RESUMO DE ATRASADOS (apenas atrasados e pendentes) */
+
+
+/** Renderiza a página de manutenções */
+
 function renderDebts() {
     const v = currentVehicle;
     const container = document.getElementById('debtsContainer');
@@ -383,8 +389,9 @@ function renderDebts() {
     const todosPagamentos = (v.pagamentos || []).filter(p => p.forma_pagamento !== 'Pago');
 
     if (todosPagamentos.length === 0) {
-        container.innerHTML =
-            `<div class="empty-state"><span class="emoji">🎉</span>Nenhum débito pendente!<br><span style="font-size:12px;color:#94a3b8;">Seu veículo está em dia.</span></div>`;
+        container.innerHTML = `
+            <div class="empty-state"><span class="emoji">🎉</span>Nenhum débito pendente!<br><span style="font-size:12px;color:#94a3b8;">Seu veículo está em dia.</span></div>
+        `;
         return;
     }
 
@@ -400,9 +407,32 @@ function renderDebts() {
         return diffDays <= 3;
     });
 
+    // ============================================================
+    // CALCULA DÉBITOS ATRASADOS E TOTAL
+    // ============================================================
+    let totalAtrasados = 0;
+    let quantidadeAtrasados = 0;
+    let totalPendentes = 0;
+    let quantidadePendentes = 0;
+
+    pagamentos.forEach(debt => {
+        const isOverdue = debt.forma_pagamento === 'Atrasado';
+        if (isOverdue) {
+            const dueDateBR = formatDateToBR(debt.data_pagamento);
+            const feeInfo = getFeeDetail(debt.valor, dueDateBR, debt.forma_pagamento);
+            const valorComMulta = feeInfo ? feeInfo.total : debt.valor;
+            totalAtrasados += valorComMulta;
+            quantidadeAtrasados++;
+        } else {
+            totalPendentes += debt.valor;
+            quantidadePendentes++;
+        }
+    });
+
     if (pagamentos.length === 0) {
-        container.innerHTML =
-            `<div class="empty-state"><span class="emoji">✅</span>Nenhum débito com vencimento nos próximos 3 dias!<br><span style="font-size:12px;color:#94a3b8;">Todos os débitos vencem em mais de 3 dias.</span></div>`;
+        container.innerHTML = `
+            <div class="empty-state"><span class="emoji">✅</span>Nenhum débito com vencimento nos próximos 3 dias!<br><span style="font-size:12px;color:#94a3b8;">Todos os débitos vencem em mais de 3 dias.</span></div>
+        `;
         return;
     }
 
@@ -413,7 +443,24 @@ function renderDebts() {
         return dataA - dataB;
     });
 
-    let html = `<div class="debts-grid">`;
+    // ============================================================
+    // MONTA O HTML COM RESUMO SIMPLES
+    // ============================================================
+    let html = '';
+
+    // Resumo simples (apenas texto, sem cards chamativos)
+    if (quantidadeAtrasados > 0 || quantidadePendentes > 0) {
+        html += `<div class="debts-summary-simple">`;
+        if (quantidadeAtrasados > 0) {
+            html += `<span class="summary-badge overdue">⚠️ ${quantidadeAtrasados} atrasado(s) - ${formatCurrency(totalAtrasados)}</span>`;
+        }
+        if (quantidadePendentes > 0) {
+            html += `<span class="summary-badge pending">⏳ ${quantidadePendentes} pendente(s) - ${formatCurrency(totalPendentes)}</span>`;
+        }
+        html += `</div>`;
+    }
+
+    html += `<div class="debts-grid">`;
     
     pagamentos.forEach((debt, index) => {
         let displayAmount = debt.valor;
@@ -445,7 +492,7 @@ function renderDebts() {
 
         html += `
             <div class="debt-card">
-                <!-- CABEÇALHO: ID + DESCRIÇÃO (NO LUGAR DA PLACA) -->
+                <!-- CABEÇALHO: ID + DESCRIÇÃO -->
                 <div class="debt-card-header">
                     <span class="debt-id">ID: <strong>${debtId}</strong></span>
                     <span class="debt-description-header">${debt.descricao}</span>
@@ -488,48 +535,6 @@ function renderDebts() {
     });
 
     html += `</div>`;
-    container.innerHTML = html;
-}
-
-/** Renderiza a página de manutenções */
-function renderMaintenance() {
-    const v = currentVehicle;
-    const container = document.getElementById('maintenanceContainer');
-    const manutencoes = v.manutencoes || [];
-
-    if (manutencoes.length === 0) {
-        container.innerHTML =
-            `<div class="empty-state"><span class="emoji">🔧</span>Nenhuma manutenção registrada<br><span style="font-size:12px;color:#94a3b8;">As manutenções aparecerão aqui.</span></div>`;
-        return;
-    }
-
-    let html = `
-        <table class="maintenance-table">
-            <thead>
-                <tr>
-                    <th class="col-date">📅 Data</th>
-                    <th class="col-desc">Serviço</th>
-                    <th class="col-parts">Peças trocadas</th>
-                    <th class="col-labor">Mão de obra</th>
-                    <th class="col-total">Total</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-
-    manutencoes.forEach(m => {
-        html += `
-            <tr>
-                <td class="col-date"><strong>${formatDateToBR(m.data_manutencao)}</strong></td>
-                <td class="col-desc">${m.descricao}</td>
-                <td class="col-parts">${m.pecas || '-'}</td>
-                <td class="col-labor">${formatCurrency(m.mao_obra)}</td>
-                <td class="col-total"><strong>${formatCurrency(m.total)}</strong></td>
-            </tr>
-        `;
-    });
-
-    html += `</tbody></table>`;
     container.innerHTML = html;
 }
 // ============================================================
