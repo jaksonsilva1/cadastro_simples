@@ -1691,3 +1691,368 @@ tr:hover td {
         font-size: 16px;
     }
 }
+/* ============================================================
+   CONTRATO
+   ============================================================ */
+.contract-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.contract-status {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 8px 18px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.status-badge.active {
+    background: #16a34a;
+    color: #fff;
+}
+
+.status-badge.info {
+    background: #0ea5e9;
+    color: #fff;
+}
+
+.contract-card {
+    background: #1e293b;
+    border-radius: 20px;
+    padding: 20px 24px;
+    border: 1px solid #334155;
+}
+
+.contract-card h3 {
+    font-size: 18px;
+    color: #38bdf8;
+    margin-bottom: 16px;
+}
+
+.contract-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+}
+
+.contract-field label {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: #94a3b8;
+}
+
+.contract-field input {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    background: #334155;
+    color: #FFF;
+    font-size: 15px;
+    transition: all 0.2s;
+}
+
+.contract-field input:focus {
+    outline: 2px solid #38bdf8;
+    outline-offset: 2px;
+}
+
+.contract-field input[readonly] {
+    opacity: 0.7;
+    cursor: default;
+}
+
+.contract-pdf {
+    border-radius: 15px;
+    overflow: hidden;
+    border: 2px solid #334155;
+    background: #0f172a;
+}
+
+.pdf-preview {
+    width: 100%;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pdf-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.contract-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+}
+
+.contract-btn {
+    padding: 14px 22px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    transition: all 0.3s;
+    color: #FFF;
+    flex: 1;
+    min-width: 140px;
+}
+
+.contract-btn:hover {
+    opacity: 0.85;
+    transform: translateY(-2px);
+}
+
+.contract-btn:active {
+    transform: scale(0.97);
+}
+
+.contract-btn.primary {
+    background: #8b5cf6;
+}
+
+.contract-btn.success {
+    background: #22c55e;
+}
+
+.contract-btn.info {
+    background: #0ea5e9;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .contract-card {
+        padding: 16px;
+    }
+    
+    .contract-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .contract-buttons {
+        flex-direction: column;
+    }
+    
+    .contract-btn {
+        min-width: 100%;
+    }
+    
+    .contract-status {
+        flex-direction: column;
+    }
+    
+    .status-badge {
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .contract-card {
+        padding: 12px;
+        border-radius: 16px;
+    }
+    
+    .contract-card h3 {
+        font-size: 16px;
+    }
+    
+    .contract-field input {
+        font-size: 14px;
+        padding: 10px;
+    }
+    
+    .pdf-preview {
+        min-height: 200px;
+    }
+}
+
+/* ============================================================
+   FILTROS DE MANUTENÇÕES
+   ============================================================ */
+.filters-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+    margin-bottom: 16px;
+    background: #111827;
+    padding: 16px;
+    border-radius: 20px;
+    border: 1px solid #1a2340;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 100px;
+    flex: 1;
+}
+
+.filter-group label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #5a6a85;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.filter-group select {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid #1a2340;
+    background: #0a0e17;
+    color: #dce4f0;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a6a85' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+}
+
+.filter-group select:focus {
+    outline: none;
+    border-color: #4a8fe0;
+    box-shadow: 0 0 0 3px rgba(74, 143, 224, 0.1);
+}
+
+.filter-group select option {
+    background: #111827;
+    color: #dce4f0;
+}
+
+.filter-clear-btn {
+    padding: 10px 20px;
+    border-radius: 12px;
+    border: 1px solid #2a1a1a;
+    background: #1a0a0a;
+    color: #e88a8a;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+    touch-action: manipulation;
+    white-space: nowrap;
+}
+
+.filter-clear-btn:hover {
+    background: #2a0a0a;
+    border-color: #4a1a1a;
+}
+
+.filter-clear-btn:active {
+    transform: scale(0.97);
+}
+
+.filter-total {
+    background: #0a1a2a;
+    padding: 12px 20px;
+    border-radius: 16px;
+    border-left: 4px solid #4a8fe0;
+    margin-bottom: 16px;
+    font-size: 15px;
+    color: #b8c5d6;
+}
+
+.filter-total strong {
+    color: #4ade80;
+    font-size: 18px;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .filters-container {
+        padding: 12px;
+        gap: 8px;
+    }
+    
+    .filter-group {
+        min-width: 80px;
+        flex: 1 1 calc(33% - 8px);
+    }
+    
+    .filter-group select {
+        padding: 8px 12px;
+        font-size: 13px;
+        padding-right: 32px;
+    }
+    
+    .filter-clear-btn {
+        padding: 8px 14px;
+        font-size: 12px;
+        flex: 1 1 100%;
+        text-align: center;
+    }
+    
+    .filter-total {
+        font-size: 13px;
+        padding: 10px 16px;
+    }
+    
+    .filter-total strong {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .filters-container {
+        padding: 8px;
+        gap: 6px;
+        border-radius: 16px;
+    }
+    
+    .filter-group {
+        min-width: 60px;
+        flex: 1 1 calc(50% - 6px);
+    }
+    
+    .filter-group label {
+        font-size: 10px;
+    }
+    
+    .filter-group select {
+        padding: 6px 10px;
+        font-size: 12px;
+        padding-right: 28px;
+        border-radius: 10px;
+    }
+    
+    .filter-clear-btn {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+    
+    .filter-total {
+        font-size: 12px;
+        padding: 8px 14px;
+    }
+    
+    .filter-total strong {
+        font-size: 14px;
+    }
+}

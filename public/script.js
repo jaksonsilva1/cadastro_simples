@@ -532,7 +532,148 @@ function renderMaintenance() {
     html += `</tbody></table>`;
     container.innerHTML = html;
 }
+// ============================================================
+// FILTROS DE MANUTENÇÕES
+// ============================================================
 
+let maintenanceFilters = {
+    year: 'todos',
+    month: 'todos',
+    day: 'todos'
+};
+
+/** Renderiza a página de manutenções com filtros */
+function renderMaintenance() {
+    const v = currentVehicle;
+    const container = document.getElementById('maintenanceContainer');
+    const manutencoes = v.manutencoes || [];
+
+    // Extrai anos, meses e dias únicos para os filtros
+    const years = [...new Set(manutencoes.map(m => m.data_manutencao ? m.data_manutencao.split('-')[0] : null))].filter(Boolean).sort();
+    const months = [...new Set(manutencoes.map(m => m.data_manutencao ? m.data_manutencao.split('-')[1] : null))].filter(Boolean).sort();
+    const days = [...new Set(manutencoes.map(m => m.data_manutencao ? m.data_manutencao.split('-')[2] : null))].filter(Boolean).sort();
+
+    // Aplica os filtros
+    let filtered = manutencoes.filter(m => {
+        if (!m.data_manutencao) return false;
+        const [year, month, day] = m.data_manutencao.split('-');
+        
+        if (maintenanceFilters.year !== 'todos' && year !== maintenanceFilters.year) return false;
+        if (maintenanceFilters.month !== 'todos' && month !== maintenanceFilters.month) return false;
+        if (maintenanceFilters.day !== 'todos' && day !== maintenanceFilters.day) return false;
+        return true;
+    });
+
+    // Calcula o total gasto com os filtros aplicados
+    const totalFiltered = filtered.reduce((sum, m) => sum + m.total, 0);
+
+    if (manutencoes.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state"><span class="emoji">🔧</span>Nenhuma manutenção registrada<br><span style="font-size:12px;color:#94a3b8;">As manutenções aparecerão aqui.</span></div>
+        `;
+        return;
+    }
+
+    // Monta o HTML com filtros e tabela
+    let html = `
+        <!-- Filtros -->
+        <div class="filters-container">
+            <div class="filter-group">
+                <label>📅 Ano</label>
+                <select id="filterYear" onchange="applyMaintenanceFilters()">
+                    <option value="todos">Todos</option>
+                    ${years.map(y => `<option value="${y}" ${maintenanceFilters.year === y ? 'selected' : ''}>${y}</option>`).join('')}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>📆 Mês</label>
+                <select id="filterMonth" onchange="applyMaintenanceFilters()">
+                    <option value="todos">Todos</option>
+                    ${months.map(m => `<option value="${m}" ${maintenanceFilters.month === m ? 'selected' : ''}>${m}</option>`).join('')}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>📅 Dia</label>
+                <select id="filterDay" onchange="applyMaintenanceFilters()">
+                    <option value="todos">Todos</option>
+                    ${days.map(d => `<option value="${d}" ${maintenanceFilters.day === d ? 'selected' : ''}>${d}</option>`).join('')}
+                </select>
+            </div>
+            <button class="filter-clear-btn" onclick="clearMaintenanceFilters()">✕ Limpar filtros</button>
+        </div>
+
+        <!-- Total filtrado -->
+        <div class="filter-total">
+            <span>💰 Total com filtros: </span>
+            <strong>${formatCurrency(totalFiltered)}</strong>
+            <span style="font-size:12px;color:#5a6a85;margin-left:8px;">(${filtered.length} manutenção(ões))</span>
+        </div>
+    `;
+
+    if (filtered.length === 0) {
+        html += `
+            <div class="empty-state" style="margin-top:16px;">
+                <span class="emoji">🔍</span>
+                Nenhuma manutenção encontrada com os filtros selecionados
+                <br><span style="font-size:12px;color:#94a3b8;">Tente ajustar os filtros.</span>
+            </div>
+        `;
+        container.innerHTML = html;
+        return;
+    }
+
+    html += `
+        <table class="maintenance-table">
+            <thead>
+                <tr>
+                    <th class="col-date">📅 Data</th>
+                    <th class="col-desc">Serviço</th>
+                    <th class="col-parts">Peças trocadas</th>
+                    <th class="col-labor">Mão de obra</th>
+                    <th class="col-total">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    // Ordena por data (mais recente primeiro)
+    filtered.sort((a, b) => {
+        if (a.data_manutencao > b.data_manutencao) return -1;
+        if (a.data_manutencao < b.data_manutencao) return 1;
+        return 0;
+    });
+
+    filtered.forEach(m => {
+        html += `
+            <tr>
+                <td class="col-date"><strong>${formatDateToBR(m.data_manutencao)}</strong></td>
+                <td class="col-desc">${m.descricao}</td>
+                <td class="col-parts">${m.pecas || '-'}</td>
+                <td class="col-labor">${formatCurrency(m.mao_obra)}</td>
+                <td class="col-total"><strong>${formatCurrency(m.total)}</strong></td>
+            </tr>
+        `;
+    });
+
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+}
+
+/** Aplica os filtros selecionados */
+function applyMaintenanceFilters() {
+    const year = document.getElementById('filterYear')?.value || 'todos';
+    const month = document.getElementById('filterMonth')?.value || 'todos';
+    const day = document.getElementById('filterDay')?.value || 'todos';
+    
+    maintenanceFilters = { year, month, day };
+    renderMaintenance();
+}
+
+/** Limpa todos os filtros */
+function clearMaintenanceFilters() {
+    maintenanceFilters = { year: 'todos', month: 'todos', day: 'todos' };
+    renderMaintenance();
+}
 /** Renderiza a página de histórico (apenas pagamentos pagos) */
 function renderHistory() {
     const v = currentVehicle;
@@ -871,3 +1012,250 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// ============================================================
+// CONTRATO - NOVA FUNÇÃO
+// ============================================================
+
+/** Renderiza a página de contrato */
+function renderContract() {
+    const container = document.getElementById('contractContainer');
+    
+    if (!currentVehicle) {
+        container.innerHTML = `<div class="empty-state"><span class="emoji">📄</span>Nenhum veículo selecionado</div>`;
+        return;
+    }
+
+    const vehicle = currentVehicle;
+    const plate = currentPlate;
+    const vehicleName = `${vehicle.marca} ${vehicle.modelo} ${vehicle.ano}`;
+
+    // Dados do locatário (exemplo)
+    const locatario = {
+        nome: 'João da Silva',
+        cpf: '000.000.000-00',
+        telefone: '(92) 99999-9999',
+        endereco: 'Rua Exemplo, 123'
+    };
+
+    // Dados da locação
+    const hoje = new Date();
+    const dataInicial = hoje.toISOString().split('T')[0];
+    const dataFinal = new Date(hoje);
+    dataFinal.setDate(dataFinal.getDate() + 7);
+    const dataFinalStr = dataFinal.toISOString().split('T')[0];
+
+    // Calcular valor semanal (baseado nos débitos)
+    let valorSemanal = 200;
+    let caução = 500;
+
+    // Se houver débitos, ajustar valores
+    const pagamentos = vehicle.pagamentos || [];
+    const debitosPendentes = pagamentos.filter(p => p.forma_pagamento !== 'Pago');
+    if (debitosPendentes.length > 0) {
+        const totalDebito = debitosPendentes.reduce((sum, p) => sum + p.valor, 0);
+        valorSemanal = Math.max(150, 200 + Math.floor(totalDebito / 10));
+        caução = Math.max(300, 500 + Math.floor(totalDebito / 5));
+    }
+
+    container.innerHTML = `
+        <div class="contract-container">
+            <!-- Status do Contrato -->
+            <div class="contract-status">
+                <span class="status-badge active">✅ Contrato Ativo</span>
+                <span class="status-badge info">📅 Vigência: ${formatDateToBR(dataInicial)} - ${formatDateToBR(dataFinalStr)}</span>
+            </div>
+
+            <!-- Dados do Locatário -->
+            <div class="contract-card">
+                <h3>👤 Dados do Locatário</h3>
+                <div class="contract-grid">
+                    <div class="contract-field">
+                        <label>Nome</label>
+                        <input type="text" id="locatarioNome" value="${locatario.nome}">
+                    </div>
+                    <div class="contract-field">
+                        <label>CPF</label>
+                        <input type="text" id="locatarioCpf" value="${locatario.cpf}">
+                    </div>
+                    <div class="contract-field">
+                        <label>Telefone</label>
+                        <input type="text" id="locatarioTelefone" value="${locatario.telefone}">
+                    </div>
+                    <div class="contract-field">
+                        <label>Endereço</label>
+                        <input type="text" id="locatarioEndereco" value="${locatario.endereco}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dados do Veículo -->
+            <div class="contract-card">
+                <h3>🚗 Veículo</h3>
+                <div class="contract-grid">
+                    <div class="contract-field">
+                        <label>Marca</label>
+                        <input type="text" value="${vehicle.marca}" readonly>
+                    </div>
+                    <div class="contract-field">
+                        <label>Modelo</label>
+                        <input type="text" value="${vehicle.modelo}" readonly>
+                    </div>
+                    <div class="contract-field">
+                        <label>Ano</label>
+                        <input type="text" value="${vehicle.ano}" readonly>
+                    </div>
+                    <div class="contract-field">
+                        <label>Placa</label>
+                        <input type="text" value="${plate}" readonly style="font-family: monospace; letter-spacing: 2px; color: #38bdf8;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dados da Locação -->
+            <div class="contract-card">
+                <h3>💰 Dados da Locação</h3>
+                <div class="contract-grid">
+                    <div class="contract-field">
+                        <label>Valor Semanal</label>
+                        <input type="text" id="valorSemanal" value="R$ ${valorSemanal.toFixed(2).replace('.', ',')}">
+                    </div>
+                    <div class="contract-field">
+                        <label>Caução</label>
+                        <input type="text" id="valorCaucao" value="R$ ${caução.toFixed(2).replace('.', ',')}">
+                    </div>
+                    <div class="contract-field">
+                        <label>Data Inicial</label>
+                        <input type="date" id="dataInicial" value="${dataInicial}">
+                    </div>
+                    <div class="contract-field">
+                        <label>Data Final</label>
+                        <input type="date" id="dataFinal" value="${dataFinalStr}">
+                    </div>
+                </div>
+                <br>
+                <label style="display: block; font-size: 13px; margin-bottom: 6px; color: #94a3b8;">Observações</label>
+                <textarea id="observacoes" style="width:100%; padding:12px; border:none; border-radius:12px; background:#334155; color:#FFF; font-size:15px; height:100px; resize:vertical;">Veículo em bom estado, sem avarias aparentes.</textarea>
+            </div>
+
+            <!-- PDF -->
+            <div class="contract-card">
+                <h3>📄 Contrato em PDF</h3>
+                <div class="contract-pdf">
+                    <div class="pdf-preview">
+                        <div class="pdf-placeholder">
+                            <span style="font-size: 48px;">📄</span>
+                            <span style="color: #94a3b8; font-size: 14px;">Contrato de Locação - ${vehicleName}</span>
+                            <span style="color: #64748b; font-size: 12px;">Clique em "Gerar PDF" para criar o documento</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="contract-buttons">
+                    <button class="contract-btn primary" onclick="generateContractPDF()">
+                        📄 Gerar PDF
+                    </button>
+                    <button class="contract-btn success" onclick="saveContract()">
+                        💾 Salvar Alterações
+                    </button>
+                    <button class="contract-btn info" onclick="previewContract()">
+                        👁 Visualizar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Resumo dos Débitos -->
+            ${debitosPendentes.length > 0 ? `
+            <div class="contract-card" style="border-color: #dc2626;">
+                <h3 style="color: #dc2626;">⚠️ Débitos Pendentes</h3>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    ${debitosPendentes.map(d => `
+                        <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: #0f172a; border-radius: 8px;">
+                            <span style="color: #94a3b8;">${d.descricao}</span>
+                            <span style="color: #dc2626; font-weight: bold;">R$ ${d.valor.toFixed(2)}</span>
+                        </div>
+                    `).join('')}
+                    <div style="text-align: right; padding-top: 8px; border-top: 1px solid #334155;">
+                        <span style="color: #94a3b8;">Total em débito: </span>
+                        <span style="color: #dc2626; font-weight: bold;">R$ ${debitosPendentes.reduce((sum, d) => sum + d.valor, 0).toFixed(2)}</span>
+                    </div>
+                </div>
+            </div>
+            ` : ''}
+        </div>
+    `;
+}
+
+/** Gera PDF do contrato (simulação) */
+function generateContractPDF() {
+    const nome = document.getElementById('locatarioNome')?.value || 'João da Silva';
+    const cpf = document.getElementById('locatarioCpf')?.value || '000.000.000-00';
+    const telefone = document.getElementById('locatarioTelefone')?.value || '(92) 99999-9999';
+    const endereco = document.getElementById('locatarioEndereco')?.value || 'Rua Exemplo, 123';
+    const valorSemanal = document.getElementById('valorSemanal')?.value || 'R$ 200,00';
+    const valorCaucao = document.getElementById('valorCaucao')?.value || 'R$ 500,00';
+    const dataInicial = document.getElementById('dataInicial')?.value || '2026-01-01';
+    const dataFinal = document.getElementById('dataFinal')?.value || '2026-01-08';
+    const observacoes = document.getElementById('observacoes')?.value || '';
+
+    const vehicle = currentVehicle;
+    const plate = currentPlate;
+    const vehicleName = vehicle ? `${vehicle.marca} ${vehicle.modelo} ${vehicle.ano}` : 'Veículo';
+
+    // Simula geração de PDF
+    showAlert(document.getElementById('dashboardAlert'), 
+        `📄 <strong>PDF Gerado!</strong><br>Contrato de Locação<br>Veículo: ${vehicleName}<br>Placa: ${plate}<br>Locatário: ${nome}<br>Valor: ${valorSemanal}/semana`,
+        'success'
+    );
+
+    // Atualiza o preview
+    const preview = document.querySelector('.pdf-placeholder');
+    if (preview) {
+        preview.innerHTML = `
+            <span style="font-size: 48px;">✅</span>
+            <span style="color: #22c55e; font-size: 14px; font-weight: bold;">PDF Gerado com Sucesso!</span>
+            <span style="color: #94a3b8; font-size: 12px;">Contrato de ${vehicleName} - ${plate}</span>
+            <span style="color: #64748b; font-size: 11px;">Clique em "Visualizar" para abrir o PDF</span>
+        `;
+    }
+}
+
+/** Salva as alterações do contrato */
+function saveContract() {
+    const nome = document.getElementById('locatarioNome')?.value || '';
+    const cpf = document.getElementById('locatarioCpf')?.value || '';
+    const telefone = document.getElementById('locatarioTelefone')?.value || '';
+    const endereco = document.getElementById('locatarioEndereco')?.value || '';
+    const valorSemanal = document.getElementById('valorSemanal')?.value || '';
+    const valorCaucao = document.getElementById('valorCaucao')?.value || '';
+    const dataInicial = document.getElementById('dataInicial')?.value || '';
+    const dataFinal = document.getElementById('dataFinal')?.value || '';
+    const observacoes = document.getElementById('observacoes')?.value || '';
+
+    showAlert(document.getElementById('dashboardAlert'), 
+        `💾 <strong>Dados salvos!</strong><br>Locatário: ${nome}<br>Valor: ${valorSemanal}/semana`,
+        'success'
+    );
+}
+
+/** Visualiza o contrato */
+function previewContract() {
+    showAlert(document.getElementById('dashboardAlert'), 
+        `👁 <strong>Visualizando Contrato</strong><br>O contrato será aberto em uma nova janela.`,
+        'info'
+    );
+    
+    // Simula abertura em nova janela
+    setTimeout(() => {
+        window.open('#', '_blank');
+    }, 500);
+}
+
+// Adicionar no switch de renderPageContent
+const originalRenderPageContent = renderPageContent;
+renderPageContent = function(page) {
+    if (page === 'contract') {
+        renderContract();
+        return;
+    }
+    originalRenderPageContent(page);
+};
