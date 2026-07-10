@@ -675,19 +675,98 @@ function clearMaintenanceFilters() {
     renderMaintenance();
 }
 /** Renderiza a página de histórico (apenas pagamentos pagos) */
+// ============================================================
+// FILTROS DE HISTÓRICO
+// ============================================================
+
+let historyFilters = {
+    year: 'todos',
+    month: 'todos',
+    day: 'todos'
+};
+
+/** Renderiza a página de histórico com filtros */
 function renderHistory() {
     const v = currentVehicle;
     const container = document.getElementById('historyContainer');
 
     const historico = (v.pagamentos || []).filter(p => p.forma_pagamento === 'Pago');
 
+    // Extrai anos, meses e dias únicos para os filtros
+    const years = [...new Set(historico.map(h => h.data_pagamento ? h.data_pagamento.split('-')[0] : null))].filter(Boolean).sort();
+    const months = [...new Set(historico.map(h => h.data_pagamento ? h.data_pagamento.split('-')[1] : null))].filter(Boolean).sort();
+    const days = [...new Set(historico.map(h => h.data_pagamento ? h.data_pagamento.split('-')[2] : null))].filter(Boolean).sort();
+
+    // Aplica os filtros
+    let filtered = historico.filter(h => {
+        if (!h.data_pagamento) return false;
+        const [year, month, day] = h.data_pagamento.split('-');
+        
+        if (historyFilters.year !== 'todos' && year !== historyFilters.year) return false;
+        if (historyFilters.month !== 'todos' && month !== historyFilters.month) return false;
+        if (historyFilters.day !== 'todos' && day !== historyFilters.day) return false;
+        return true;
+    });
+
+    // Calcula o total gasto com os filtros aplicados
+    const totalFiltered = filtered.reduce((sum, h) => sum + h.valor, 0);
+
     if (historico.length === 0) {
-        container.innerHTML =
-            `<div class="empty-state"><span class="emoji">📭</span>Nenhum histórico de pagamento<br><span style="font-size:12px;color:#94a3b8;">Os pagamentos aparecerão aqui.</span></div>`;
+        container.innerHTML = `
+            <div class="empty-state"><span class="emoji">📭</span>Nenhum histórico de pagamento<br><span style="font-size:12px;color:#94a3b8;">Os pagamentos aparecerão aqui.</span></div>
+        `;
         return;
     }
 
+    // Monta o HTML com filtros e tabela
     let html = `
+        <!-- Filtros -->
+        <div class="filters-container">
+            <div class="filter-group">
+                <label>📅 Ano</label>
+                <select id="historyFilterYear" onchange="applyHistoryFilters()">
+                    <option value="todos">Todos</option>
+                    ${years.map(y => `<option value="${y}" ${historyFilters.year === y ? 'selected' : ''}>${y}</option>`).join('')}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>📆 Mês</label>
+                <select id="historyFilterMonth" onchange="applyHistoryFilters()">
+                    <option value="todos">Todos</option>
+                    ${months.map(m => `<option value="${m}" ${historyFilters.month === m ? 'selected' : ''}>${m}</option>`).join('')}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>📅 Dia</label>
+                <select id="historyFilterDay" onchange="applyHistoryFilters()">
+                    <option value="todos">Todos</option>
+                    ${days.map(d => `<option value="${d}" ${historyFilters.day === d ? 'selected' : ''}>${d}</option>`).join('')}
+                </select>
+            </div>
+            <button class="filter-clear-btn" onclick="clearHistoryFilters()">✕ Limpar filtros</button>
+        </div>
+
+        <!-- Total filtrado -->
+        <div class="filter-total">
+            <span>💰 Total com filtros: </span>
+            <strong>${formatCurrency(totalFiltered)}</strong>
+            <span style="font-size:12px;color:#5a6a85;margin-left:8px;">(${filtered.length} pagamento(s))</span>
+        </div>
+    `;
+
+    if (filtered.length === 0) {
+        html += `
+            <div class="empty-state" style="margin-top:16px;">
+                <span class="emoji">🔍</span>
+                Nenhum pagamento encontrado com os filtros selecionados
+                <br><span style="font-size:12px;color:#94a3b8;">Tente ajustar os filtros.</span>
+            </div>
+        `;
+        container.innerHTML = html;
+        return;
+    }
+
+    html += `
         <table class="history-table">
             <thead>
                 <tr>
@@ -701,7 +780,14 @@ function renderHistory() {
             <tbody>
     `;
 
-    historico.forEach(h => {
+    // Ordena por data (mais recente primeiro)
+    filtered.sort((a, b) => {
+        if (a.data_pagamento > b.data_pagamento) return -1;
+        if (a.data_pagamento < b.data_pagamento) return 1;
+        return 0;
+    });
+
+    filtered.forEach(h => {
         html += `
             <tr>
                 <td class="col-date">${formatDateToBR(h.data_pagamento)}</td>
@@ -715,6 +801,22 @@ function renderHistory() {
 
     html += `</tbody></table>`;
     container.innerHTML = html;
+}
+
+/** Aplica os filtros selecionados no histórico */
+function applyHistoryFilters() {
+    const year = document.getElementById('historyFilterYear')?.value || 'todos';
+    const month = document.getElementById('historyFilterMonth')?.value || 'todos';
+    const day = document.getElementById('historyFilterDay')?.value || 'todos';
+    
+    historyFilters = { year, month, day };
+    renderHistory();
+}
+
+/** Limpa todos os filtros do histórico */
+function clearHistoryFilters() {
+    historyFilters = { year: 'todos', month: 'todos', day: 'todos' };
+    renderHistory();
 }
 
 /** Renderiza a página de resumo */
